@@ -1,6 +1,6 @@
 import Navbar from "../components/Navbar";
 import Homebox from "../components/HomeBox";
-
+import DropdownForm from "../components/forms";
 export default function Home() {
     return (
         <div>
@@ -12,6 +12,10 @@ export default function Home() {
                     <Homebox title="Pipeline" />
                 </div>
             </div>
+            {/* Add Dropdown Form here */}
+            <div className="mt-8 flex justify-center">
+                <DropdownForm />
+            </div>
         </div>
-    )
+    );
 }

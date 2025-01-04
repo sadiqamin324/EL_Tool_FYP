@@ -1,20 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Home from './pages/Home'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import DropdownForm from './components/forms'; // Import DropdownForm
 
 function App() {
-  const [count, setCount] = useState(0)
+    return (
+        <Router>
+            <Routes>
+                {/* Home Page */}
+                <Route path="/" element={<Home />} />
 
-  return (
-    <>
-      <div>
-        <Home/>
-      </div>
-        
-    </>
-  )
+                {/* Dropdown Page */}
+                <Route path="/dropdown" element={<DropdownForm />} />
+            </Routes>
+        </Router>
+    );
 }
 
-export default App
+export default App;
