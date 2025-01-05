@@ -4,9 +4,6 @@ module.exports = {
     extend: {
       screens: {
         "3xl": "1300px"
-      },
-      outline: {
-        debug: ['2px dashed red']
       }
     },
   },

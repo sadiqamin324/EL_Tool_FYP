@@ -1,19 +1,22 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import DropdownForm from './components/forms'; // Import DropdownForm
+import DropdownForm from './pages/Source'; // Import DropdownForm
 
-function App() {
+export default function App() {
     return (
-        <Router>
+        <BrowserRouter>
             <Routes>
+                
                 {/* Home Page */}
                 <Route path="/" element={<Home />} />
 
                 {/* Dropdown Page */}
                 <Route path="/dropdown" element={<DropdownForm />} />
+
+
             </Routes>
-        </Router>
+        </BrowserRouter>
     );
 }
 
-export default App;
+

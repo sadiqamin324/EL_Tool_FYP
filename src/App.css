@@ -9,7 +9,7 @@ body{
 .font-Inter{
   font-family:'Lexend,sans-serif';
 }
-/* In App.css */
+/* In App.css
 input {
   padding: 8px;
   border: 1px solid #ccc;
@@ -26,4 +26,4 @@ button {
 
 button:hover {
   opacity: 0.8;
-}
+} */
