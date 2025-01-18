@@ -1,8 +1,4 @@
 {
-<<<<<<< HEAD
-  "dependencies": {
-    "react-router-dom": "^7.1.1"
-=======
   "name": "data-engineering",
   "private": true,
   "version": "0.0.0",
@@ -33,6 +29,5 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.6"
->>>>>>> 806e017678b0b208c7ba40ed3dc57b062f5b5b67
   }
 }
