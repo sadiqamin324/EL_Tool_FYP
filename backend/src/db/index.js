@@ -1,25 +1,23 @@
-import 'dotenv/config'; // Shorter way to load environment variables
-import pkg from 'pg';
+import { Sequelize } from 'sequelize'; // Import Sequelize
+import 'dotenv/config'; // Load environment variables
 
-const { Client } = pkg; // Destructure Client from the CommonJS export
-
-const client = new Client({
-  user: process.env.DB_USER,
+// Initialize Sequelize with database configuration
+const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USER, process.env.DB_PASSWORD, {
   host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
+  dialect: 'postgres', // Specify the database dialect
   port: process.env.DB_PORT,
+  logging: false, // Disable query logging (optional)
 });
 
-// A function to initialize the connection
+// A function to test and establish the connection
 const connectToDatabase = async () => {
   try {
-    await client.connect();
-    console.log('Connected to PostgreSQL database!');
+    await sequelize.authenticate(); // Test the database connection
+    console.log('Connected to PostgreSQL database using Sequelize!');
   } catch (error) {
-    console.error('Error connecting to PostgreSQL:', error.stack);
-    process.exit(1); // Exit process if database connection fails
+    console.error('Error connecting to PostgreSQL with Sequelize:', error);
+    process.exit(1); // Exit process if connection fails
   }
 };
 
-export { client, connectToDatabase };
+export { sequelize, connectToDatabase };
