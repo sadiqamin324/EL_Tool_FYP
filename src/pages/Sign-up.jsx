@@ -11,6 +11,7 @@ export default function SignUp() {
                 <div className="flex w-[90%] mb-2">
                     <p className="text-xs text-[#8c8c8c]">Already have an account? <a className="underline" href="">Login in</a></p>
                 </div>
+                
                 <div className="flex flex-col items-center w-[90%]">
                     <div className="flex my-2 w-full">
                         <input className="p-3 text-sm mr-1 w-1/2 font-normal rounded-md text-[#a7a7a7] border-2 border-[#fb6841]" placeholder="First Name" type="text" />

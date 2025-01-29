@@ -6,6 +6,7 @@ module.exports = {
         'back-pattern': "url('./src/assets/back-pattern.jpg')",
         'back-eye': "url('./src/assets/back-eye.png')",
         'tick': "url('./src/assets/tick.png')",
+        'down-arrow': "url('./src/assets/down-arrow.png')",
       },
       colors: {
         'white-60': 'rgba(255, 255, 255, 0.6)',
