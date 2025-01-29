@@ -1,69 +1,125 @@
-
-
 const a1 = document.getElementsByClassName("a1");
 const back_arrow = document.getElementsByClassName("back-arrow");
-const db_details=document.getElementsByClassName("db-details");
+const db_details = document.getElementsByClassName("db-details");
 const inputs = document.getElementsByTagName("input");
+var flag; //flag is a variable for identifying which source is choosen by the user. 0 for Postgree and 1 for OdooSH
 
+const Postgree_credentials = [
+  "User Name",
+  "Port",
+  "Host",
+  "Database Name",
+  "Password",
+];
+
+const OdooSh_credentials = [
+  "Server",
+  "Port",
+  "User Name",
+  "Password",
+  "Database Name",
+];
 
 export function OpenDropDown() {
   a1[0].classList.toggle("hidden");
-  back_arrow[0].classList.toggle('rotate-180');
+  back_arrow[0].classList.toggle("rotate-180");
 }
 
-export function CloseDropDown(){
-    a1[0].classList.add("hidden");
-    db_details[0].classList.remove('hidden');
-}
-
-export function MouseOver(){
-    event.target.classList.add('bg-gray-300');
-}
-
-export function MouseLeave(){
-    event.target.classList.remove('bg-gray-300');
-} 
-
-export function MouseOverRed(){
-    event.target.classList.add('bg-red-200');
-}
-
-export function MouseLeaveRed(){
-    event.target.classList.remove('bg-red-200');
-}
-
-export function EmptyInput(){
-    for (let i = 0; i < inputs.length; i++) {
-        inputs[i].value = ''; // Set the value to an empty string
-    }
+export function CheckClassName(element) {
+  a1[0].classList.add("hidden");
+  db_details[0].classList.remove("hidden");
+  if (element.className.includes("Postgree")) {
+    flag = 0;
     
+    for (let i = 0; i < inputs.length; i++) {
+      inputs[i].placeholder = Postgree_credentials[i];
+    }
+  } else if (element.className.includes("OdooSH")) {
+    flag = 1;
+    
+    for (let i = 0; i < inputs.length; i++) {
+      inputs[i].placeholder = OdooSh_credentials[i];
+    }
+  }
+
+  // } else if (element.className.includes("blue")) {
+  //     console.log("The clicked box is blue!");
+  // } else if (element.className.includes("green")) {
+  //     console.log("The clicked box is green!");
+  // }
 }
 
+export function MouseOver() {
+  event.target.classList.add("bg-gray-300");
+}
 
-export async function HandleClick(){
-    console.log("🔵 Sending request to backend...");
+export function MouseLeave() {
+  event.target.classList.remove("bg-gray-300");
+}
 
+export function MouseOverRed() {
+  event.target.classList.add("bg-red-200");
+}
+
+export function MouseLeaveRed() {
+  event.target.classList.remove("bg-red-200");
+}
+
+export function EmptyInput() {
+  for (let i = 0; i < inputs.length; i++) {
+    inputs[i].value = ""; // Set the value to an empty string
+  }
+}
+
+export async function HandleClick() {
+  console.log("🔵 Sending request to backend...");
+  if (flag == 0) {
     try {
-        const response = await fetch('http://localhost:5000/connect-database', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+      const response = await fetch("http://localhost:5000/connect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (data.success) {
-            alert(`Database connected successfully! Time: ${data.time}`);
-        } else {
-            alert('Database connection failed.');
-        }
+      if (data.success) {
+        alert(`Database connected successfully! Time: ${data.time}`);
+      } else {
+        alert("Database connection failed.");
+      }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to connect to the database.');
+      console.error("Error:", error);
+      alert("Failed to connect to the database.");
     }
+  } else if (flag == 1) {
+    try {
+      const response = await fetch("http://localhost:5000/connect-OdooSH", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(`Database connected successfully! Time: ${data.time}`);
+      } else {
+        alert("Database connection failed.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to connect to the database.");
+    }
+  }
 }

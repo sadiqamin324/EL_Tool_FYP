@@ -1,6 +1,5 @@
 import "./forms.js";
-import {
-  CloseDropDown,
+import { CheckClassName,
   EmptyInput,
   HandleClick,
   MouseLeave,
@@ -11,6 +10,17 @@ import {
 } from "./forms.js";
 
 export default function Dropdown() {
+
+  const Postgree_credentials = [
+    "User Name",
+    "Port",
+    "Host",
+    "Database Name",
+    "Password"
+  ];
+
+  
+  const OdooSh_credentials = ["Server", "Port", "User Name", "Password", "Database Name"];
   return (
     <div className="flex justify-center items-center h-[49rem]">
       <div className="w-1/4 h-2/3 flex flex-col justify-center items-center border-2 border-black">
@@ -23,8 +33,8 @@ export default function Dropdown() {
         </div>
         <div className="a1 hidden w-5/6 h-[10.5rem] border border-red-500">
           <div
-            className="cursor-pointer h-1/3 flex p-2 items-center justify-between border-b border-red-500"
-            onClick={CloseDropDown}
+            className="Postgree cursor-pointer h-1/3 flex p-2 items-center justify-between border-b border-red-500"
+            onClick={(e) => CheckClassName(e.target)}
             onMouseOver={MouseOver}
             onMouseLeave={MouseLeave}
           >
@@ -33,8 +43,8 @@ export default function Dropdown() {
             </p>
           </div>
           <div
-            className="cursor-pointer h-1/3 flex p-2 items-center justify-between border-b border-red-500"
-            onClick={CloseDropDown}
+            className="OdooSH cursor-pointer h-1/3 flex p-2 items-center justify-between border-b border-red-500"
+            onClick={(e) => CheckClassName(e.target)}
             onMouseOver={MouseOver}
             onMouseLeave={MouseLeave}
           >
@@ -42,16 +52,7 @@ export default function Dropdown() {
               OdooSH
             </p>
           </div>
-          <div
-            className="cursor-pointer h-1/3 flex p-2 items-center justify-between border-b border-red-500"
-            onClick={CloseDropDown}
-            onMouseOver={MouseOver}
-            onMouseLeave={MouseLeave}
-          >
-            <p className="font-inter" onMouseLeave={MouseLeave}>
-              OdooVM
-            </p>
-          </div>
+          
         </div>
         <div className="db-details hidden w-5/6 flex flex-col">
           <div className="my-2">
@@ -93,7 +94,12 @@ export default function Dropdown() {
 
         <div className="buttons flex w-5/6 my-2">
           <div className="w-1/2">
-            <button className="p-2 rounded-lg border-2 border-red-500 disabled:bg-red-200" onMouseOver={MouseOverRed} onMouseLeave={MouseLeaveRed} onClick={HandleClick}>
+            <button
+              className="p-2 rounded-lg border-2 border-red-500 disabled:bg-red-200"
+              onMouseOver={MouseOverRed}
+              onMouseLeave={MouseLeaveRed}
+              onClick={HandleClick}
+            >
               Save
             </button>
           </div>

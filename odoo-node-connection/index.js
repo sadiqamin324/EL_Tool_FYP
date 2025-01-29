@@ -34,7 +34,7 @@ const retryQuery = async (query, retries = 3) => {
 };
 
 // Main function to connect to the database and execute queries
-const main = async () => {
+main = async () => {
     try {
         console.log('Connecting to the database...');
         await sql.connect(config);
@@ -57,6 +57,4 @@ const main = async () => {
     }
 };
 
-// Run the main function
-main();
-
+module.exports = main;
