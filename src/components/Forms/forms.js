@@ -13,11 +13,11 @@ const Postgree_credentials = [
 ];
 
 const OdooSh_credentials = [
-  "Server",
-  "Port",
   "User Name",
-  "Password",
+  "Port",
+  "Server",
   "Database Name",
+  "Password",
 ];
 
 export function OpenDropDown() {
@@ -30,13 +30,13 @@ export function CheckClassName(element) {
   db_details[0].classList.remove("hidden");
   if (element.className.includes("Postgree")) {
     flag = 0;
-    
+
     for (let i = 0; i < inputs.length; i++) {
       inputs[i].placeholder = Postgree_credentials[i];
     }
   } else if (element.className.includes("OdooSH")) {
     flag = 1;
-    
+
     for (let i = 0; i < inputs.length; i++) {
       inputs[i].placeholder = OdooSh_credentials[i];
     }
@@ -72,6 +72,13 @@ export function EmptyInput() {
 }
 
 export async function HandleClick() {
+  let data2 = {}; // Object to store input values
+
+  // Loop through all inputs and store name-value pairs in 'data2' object
+  for (let i = 0; i < inputs.length; i++) {
+    data2[i] = inputs[i].value;
+  }
+  
   console.log("🔵 Sending request to backend...");
   if (flag == 0) {
     try {
@@ -80,6 +87,7 @@ export async function HandleClick() {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(data2)
       });
 
       if (!response.ok) {
@@ -94,7 +102,7 @@ export async function HandleClick() {
         alert("Database connection failed.");
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.log("Error:", error);
       alert("Failed to connect to the database.");
     }
   } else if (flag == 1) {
@@ -104,6 +112,7 @@ export async function HandleClick() {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(data)
       });
 
       if (!response.ok) {
