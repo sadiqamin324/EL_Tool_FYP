@@ -30,13 +30,13 @@
 //   db_details[0].classList.remove("hidden");
 //   if (element.className.includes("Postgree")) {
 //     flag = 0;
-    
+
 //     for (let i = 0; i < inputs.length; i++) {
 //       inputs[i].placeholder = Postgree_credentials[i];
 //     }
 //   } else if (element.className.includes("OdooSH")) {
 //     flag = 1;
-    
+
 //     for (let i = 0; i < inputs.length; i++) {
 //       inputs[i].placeholder = OdooSh_credentials[i];
 //     }
@@ -82,7 +82,6 @@
 //         },
 //       });
 //       alert("connected")
-      
 
 //       if (!response.ok) {
 //         throw new Error("Network response was not ok");
@@ -200,8 +199,7 @@ export async function HandleClick() {
   for (let i = 0; i < inputs.length; i++) {
     data2[i] = inputs[i].value;
   }
-  
-  console.log("🔵 Sending request to backend...");
+
   if (flag === 0) {
     const credentials = {
       username: inputs[0].value,
@@ -219,6 +217,7 @@ export async function HandleClick() {
         },
         body: JSON.stringify(credentials),
       });
+      console.log("🔵 Sending request to backend...");
 
       if (!response.ok) {
         throw new Error("Network response was not ok");

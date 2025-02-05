@@ -3,20 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-<<<<<<< HEAD
-  
-    "scripts": {
-      "start": "node -r dotenv/config index.js",
-      "dev": "nodemon -r dotenv/config index.js"
-    }
-  ,
-=======
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon -r dotenv/config --experimental-json-modules index.js"
   },
   
->>>>>>> d5c79492ef2231b4308768c54a9eaf2aaf4afe0c
   "keywords": [],
   "author": "",
   "license": "ISC",
