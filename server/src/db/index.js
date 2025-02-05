@@ -26,6 +26,7 @@
 //   }
 // });
 
+<<<<<<< HEAD
 // app.post('/sync-database', async (req, res) => {
 //   try {
 //     await User.sync({ force: true });
@@ -35,6 +36,10 @@
 //     res.status(500).json({ success: false, message: 'Sync failed', error: err.message });
 //   }
 // });
+=======
+
+
+>>>>>>> d5c79492ef2231b4308768c54a9eaf2aaf4afe0c
 
 // app.listen(PORT, () => {
 //   console.log(`Server running on http://localhost:${PORT}`);

@@ -13,6 +13,12 @@
 // const PORT = process.env.PORT || 5000;
 // app.use(cors()); // Enable CORS for all routes
 
+let Sign_Up_Info = [];
+let Sign_In_Info = [];
+let first_name, last_name, SignUp_email, SignUp_password;
+let SignIn_email, SignIn_password;
+
+export var Postgree_Credentials = { value: 0 };
 // Load environment variables
 // dotenv.config({
 //   path: "backend/.env", // Corrected path to .env file
