@@ -1,65 +1,61 @@
-// import { Sequelize } from 'sequelize'; // Import Sequelize
-// // import 'dotenv/config'; // Load environment variables
+// import express from 'express';
+// import cors from 'cors';
+// import dotenv from 'dotenv';
+// import { initializeDatabase } from './src/db/index.js'; // Correct path to db
+// import User from './src/model/user.model.js'; // Correct path to user model
 
-// // Initialize Sequelize with database configuration
-// // const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-// //   host: process.env.DB_HOST,
-// //   dialect: 'postgres', // Specify the database dialect
-// //   port: process.env.DB_PORT,
-// //   logging: false, // Disable query logging (optional)
-// // });
-// // const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-// //   host: process.env.DB_HOST,
-// //   dialect: 'postgres', // Specify the database dialect
-// //   port: process.env.DB_PORT,
-// //   logging: false, // Disable query logging (optional)
-// // });
-// const sequelize = new Sequelize(Postgree_Credentials.value[2], Postgree_Credentials.value[0], Postgree_Credentials.value[4], {
-//   host: Postgree_Credentials.value[2],
-//   dialect: 'postgres', // Specify the database dialect
-//   port: Postgree_Credentials.value[1],
-//   logging: false, // Disable query logging (optional)
+// dotenv.config();
+// const app = express();
+// app.use(express.json());
+// const PORT = process.env.PORT || 5000;
+// app.use(cors());
+
+// // Load environment variables (adjust path if needed)
+// dotenv.config({ path: 'backend/.env' });
+
+// // Routes
+// app.post('/connect-Postgree', async (req, res) => {
+//   console.log('Connecting to database...');
+//   try {
+//     await initializeDatabase(req.body);
+//     console.log('Successfully connected to PostgreSQL');
+//     res.json({ success: true, message: 'Connection established' });
+//   } catch (err) {
+//     console.error('Connection failed:', err);
+//     res.status(500).json({ success: false, message: 'Connection failed', error: err.message });
+//   }
 // });
 
-
-// // A function to test and establish the connection
-// const connectToDatabase = async () => {
+// app.post('/sync-database', async (req, res) => {
 //   try {
-//     await sequelize.authenticate(); // Test the database connection
-//     console.log('Connected to PostgreSQL database using Sequelize!');
-//   } catch (error) {
-//     console.error('Error connecting to PostgreSQL with Sequelize:', error);
-//     process.exit(1); // Exit process if connection fails
+//     await User.sync({ force: true });
+//     res.json({ success: true, message: 'Database synced' });
+//   } catch (err) {
+//     console.error('Sync failed:', err);
+//     res.status(500).json({ success: false, message: 'Sync failed', error: err.message });
 //   }
-// };
+// });
 
-// export { sequelize, connectToDatabase };
-// export var Postgree_Credentials = { value: 0 };
-import { Sequelize } from 'sequelize';
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
+import { Sequelize } from "sequelize";
 
-let sequelize;
+// Create a new Sequelize instance
+const sequelize = new Sequelize("data", "postgres", "sadiq123", {
+  host: "localhost", // Change to your DB host
+  dialect: "postgres", // Specify PostgreSQL
+  logging: false, // Disable logging queries (set true for debugging)
+});
 
-export function initializeDatabase({ database, username, password, host, port }) {
-  if (typeof password !== 'string') {
-    throw new Error('Password must be a string');
+// Test the database connection
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("✅ Connected to PostgreSQL successfully!");
+  } catch (error) {
+    console.error("❌ Unable to connect to PostgreSQL:", error);
   }
+})();
 
-  sequelize = new Sequelize(database, username, password, {
-    host: host,
-    dialect: 'postgres', // Specify the database dialect
-    port: port,
-    logging: false, // Disable query logging (optional)
-  });
-
-  return sequelize.authenticate()
-    .then(() => {
-      console.log('Connection has been established successfully.');
-    })
-    .catch(err => {
-      console.error('Unable to connect to the database:', err);
-    });
-}
-
-export function getSequelizeInstance() {
-  return sequelize;
-}
+export default sequelize; // ✅ Default export for ES modules
