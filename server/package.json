@@ -2,18 +2,26 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "type": "module",
+<<<<<<< HEAD
+  
+    "scripts": {
+      "start": "node -r dotenv/config index.js",
+      "dev": "nodemon -r dotenv/config index.js"
+    }
+  ,
+=======
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon -r dotenv/config --experimental-json-modules index.js"
   },
+  
+>>>>>>> d5c79492ef2231b4308768c54a9eaf2aaf4afe0c
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sequelize/core": "^7.0.0-alpha.44",
-    "@sequelize/postgres": "^7.0.0-alpha.44",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

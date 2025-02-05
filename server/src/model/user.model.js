@@ -1,28 +1,16 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../db/index.js'; // Import the Sequelize instance
+import { DataTypes } from "sequelize";
+import sequelize from "../db/index.js"; // Ensure the correct path
 
-// Define the User model
-const user = sequelize.define('User', {
-
+const User = sequelize.define("User", {
   name: {
     type: DataTypes.STRING,
-    allowNull: false, // Make the field required
+    allowNull: false,
   },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true, // Ensure email is unique
-    validate: {
-      isEmail: true, // Validate email format
-    },
+    unique: true,
   },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-}, {
-  tableName: 'users', // Optional: Specify table name
-  timestamps: true,   // Sequelize automatically adds createdAt and updatedAt fields
 });
 
-export default user;
+export default User; // ✅ Default export
