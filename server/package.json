@@ -8,17 +8,19 @@
     "start": "node index.js",
     "dev": "nodemon -r dotenv/config --experimental-json-modules index.js"
   },
-  
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sequelize/core": "^7.0.0-alpha.44",
+    "@sequelize/postgres": "^7.0.0-alpha.44",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.5"
+    "sequelize": "^6.37.5",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

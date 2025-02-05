@@ -21,35 +21,54 @@
 //   logging: false, // Disable query logging (optional)
 // });
 
-
-
-
 // export { sequelize, connectToDatabase };
 // export var Postgree_Credentials = { value: 0 };
-import { Sequelize } from 'sequelize';
+import { Sequelize, DataTypes, Model } from "@sequelize/core";
+
+import {
+  Attribute,
+  PrimaryKey,
+  AutoIncrement,
+  NotNull,
+} from "@sequelize/core/decorators-legacy";
 
 let sequelize;
+let User;
 
-export function initializeDatabase({ database, username, password, host, port }) {
-  if (typeof password !== 'string') {
-    throw new Error('Password must be a string');
+export async function initializeDatabase({
+  database,
+  username,
+  password,
+  host,
+  port,
+}) {
+  if (typeof password !== "string") {
+    throw new Error("Password must be a string");
   }
 
-  sequelize = new Sequelize(database, username, password, {
+  sequelize = new Sequelize({
+    database: "postgres",
+    user: "postgres",
+    password: "safeeurrehman123",
+    dialect: "postgres", // Use PostgreSQL dialect
     host: host,
-    dialect: 'postgres', // Specify the database dialect
-    port: port,
-    logging: false, // Disable query logging (optional)
+    port: port, // Database password
+    logging: false, // Optional: Disable query logging
   });
 
-  return sequelize.authenticate()
+  
+
+  return sequelize
+    .authenticate()
     .then(() => {
-      console.log('Connection has been established successfully.');
+      console.log("Connection has been established successfully.");
     })
-    .catch(err => {
-      console.error('Unable to connect to the database:', err);
+    .catch((err) => {
+      console.error("Unable to connect to the database:", err);
     });
 }
+
+export { User };
 
 export function getSequelizeInstance() {
   return sequelize;

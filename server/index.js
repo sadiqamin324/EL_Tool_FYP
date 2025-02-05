@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { initializeDatabase } from "./src/db/index.js"; // Adjust the path as needed
+import { initializeDatabase, User } from "./src/db/index.js"; // Adjust the path as needed
 import alertGradient from "@material-tailwind/react/theme/components/alert/alertGradient.js";
 // import main from '../odoo-node-connection/index.js';
+
 dotenv.config();
 
 const app = express();
@@ -67,7 +68,7 @@ app.post("/connect-OdooSH", async (req, res) => {
   console.log("Successfully connected to Postgree SQl");
 });
 
-// User Information from Signup Page coming here
+// User Information from SignUp Page coming here
 app.post("/SignUpInfo", async (req, res) => {
   Sign_Up_Info = req.body;
   console.log(Sign_Up_Info);
@@ -78,6 +79,7 @@ app.post("/SignUpInfo", async (req, res) => {
   [first_name, last_name, SignUp_email, SignUp_password] = Sign_Up_Info;
 });
 
+// User Information from SignIn Page coming here
 app.post("/SignInInfo", async (req, res) => {
   Sign_In_Info = req.body;
   console.log(Sign_In_Info);
