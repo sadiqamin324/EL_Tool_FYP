@@ -13,8 +13,9 @@ export default function SignUp() {
     
 
     if (User_Info.length == inputs.length) {
+      
       try {
-        const response = await fetch("http://localhost:5000/SignUpInfo", {
+        const response = await fetch("http://localhost:5000/Sign-Up", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

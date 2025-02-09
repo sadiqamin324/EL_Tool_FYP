@@ -14,7 +14,7 @@ export default function Dropdown() {
   
   return (
     <div className="flex justify-center items-center h-[49rem]">
-      <div className="w-1/4 h-2/3 flex flex-col justify-center items-center border-2 border-black">
+      <div className="w-1/4 h-5/6 flex flex-col justify-center items-center border-2 border-black">
         <div
           className="p-2 w-5/6 h-[3.5rem] border border-red-600 rounded-lg flex justify-between items-center cursor-pointer"
           onClick={OpenDropDown}
@@ -34,13 +34,13 @@ export default function Dropdown() {
             </p>
           </div>
           <div
-            className="OdooSH cursor-pointer h-1/3 flex p-2 items-center justify-between border-b border-red-500"
+            className="Odoo cursor-pointer h-1/3 flex p-2 items-center justify-between border-b border-red-500"
             onClick={(e) => CheckClassName(e.target)}
             onMouseOver={MouseOver}
             onMouseLeave={MouseLeave}
           >
             <p className="font-inter" onMouseLeave={MouseLeave}>
-              OdooSH
+              Odoo
             </p>
           </div>
           
@@ -50,35 +50,36 @@ export default function Dropdown() {
             <input
               className="w-full h-[3rem] p-2 text-md  font-inter border border-red-600 rounded-lg"
               type="text"
-              placeholder="Host Name"
             />
           </div>
           <div className="my-2">
             <input
               className="w-full h-[3rem] p-2 text-md  font-inter border border-red-600 rounded-lg"
               type="text"
-              placeholder="Database Name"
             />
           </div>
           <div className="my-2">
             <input
               className="w-full h-[3rem] p-2 text-md  font-inter border border-red-600 rounded-lg"
               type="text"
-              placeholder="Port Number"
             />
           </div>
           <div className="my-2">
             <input
               className="w-full h-[3rem] p-2 text-md  font-inter border border-red-600 rounded-lg"
               type="text"
-              placeholder="User Name"
             />
           </div>
           <div className="my-2">
             <input
               className="w-full h-[3rem] p-2 text-md  font-inter border border-red-600 rounded-lg"
               type="text"
-              placeholder="Password"
+            />
+          </div>
+          <div className="my-2">
+            <input
+              className="w-full h-[3rem] p-2 text-md  font-inter border border-red-600 rounded-lg"
+              type="text"
             />
           </div>
         </div>
