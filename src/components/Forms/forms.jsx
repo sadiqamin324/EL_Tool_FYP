@@ -11,16 +11,7 @@ import { CheckClassName,
 
 export default function Dropdown() {
 
-  const Postgree_credentials = [
-    "User Name",
-    "Port",
-    "Host",
-    "Database Name",
-    "Password"
-  ];
-
   
-  const OdooSh_credentials = ["Server", "Port", "User Name", "Password", "Database Name"];
   return (
     <div className="flex justify-center items-center h-[49rem]">
       <div className="w-1/4 h-2/3 flex flex-col justify-center items-center border-2 border-black">
@@ -98,7 +89,6 @@ export default function Dropdown() {
               className="p-2 rounded-lg border-2 border-red-500 disabled:bg-red-200"
               onMouseOver={MouseOverRed}
               onMouseLeave={MouseLeaveRed}
-              onClick={HandleClick}
             >
               Save
             </button>
@@ -116,6 +106,7 @@ export default function Dropdown() {
               className="p-2 rounded-lg border-2 border-red-500"
               onMouseOver={MouseOverRed}
               onMouseLeave={MouseLeaveRed}
+              onClick={HandleClick}
             >
               Test
             </button>

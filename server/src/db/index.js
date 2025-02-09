@@ -1,23 +1,60 @@
-import { Sequelize } from 'sequelize'; // Import Sequelize
-import 'dotenv/config'; // Load environment variables
+// export var Postgree_Credentials = { value: 0 };
+import { Sequelize, DataTypes, Model } from "@sequelize/core";
+import { Sequelize } from "sequelize";
 
-// Initialize Sequelize with database configuration
-const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: 'postgres', // Specify the database dialect
-  port: process.env.DB_PORT,
-  logging: false, // Disable query logging (optional)
+import {
+  Attribute,
+  PrimaryKey,
+  AutoIncrement,
+  NotNull,
+} from "@sequelize/core/decorators-legacy";
+
+let sequelize;
+let User;
+
+export async function initializeDatabase({
+  database,
+  username,
+  password,
+  host,
+  port,
+}) {
+  if (typeof password !== "string") {
+    throw new Error("Password must be a string");
+  }
+
+// Create a new Sequelize instance
+const sequelize = new Sequelize("data", "postgres", "sadiq123", {
+  host: "localhost", // Change to your DB host
+  dialect: "postgres", // Specify PostgreSQL
+  logging: false, // Disable logging queries (set true for debugging)
 });
 
-// A function to test and establish the connection
-const connectToDatabase = async () => {
+// Test the database connection
+(async () => {
   try {
-    await sequelize.authenticate(); // Test the database connection
-    console.log('Connected to PostgreSQL database using Sequelize!');
+    await sequelize.authenticate();
+    console.log("✅ Connected to PostgreSQL successfully!");
   } catch (error) {
-    console.error('Error connecting to PostgreSQL with Sequelize:', error);
-    process.exit(1); // Exit process if connection fails
+    console.error("❌ Unable to connect to PostgreSQL:", error);
   }
-};
+})();
 
-export { sequelize, connectToDatabase };
+  
+
+  return sequelize
+    .authenticate()
+    .then(() => {
+      console.log("Connection has been established successfully.");
+    })
+    .catch((err) => {
+      console.error("Unable to connect to the database:", err);
+    });
+}
+
+export { User };
+
+export function getSequelizeInstance() {
+  return sequelize;
+}
+export default sequelize; // ✅ Default export for ES modules

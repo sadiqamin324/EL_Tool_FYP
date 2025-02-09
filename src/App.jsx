@@ -10,9 +10,10 @@ export default function App() {
             <Routes>
                 
                 {/* Home Page */}
-                <Route path="/" element={<SignUp/>} />
-                <Route path="/SignIn" element={<SignIn />} />
-                <Route path="/home" element={<Home />} />
+                
+                <Route path="/" element={<Home />} />
+                <Route path="/SignUp" element={<SignUp/>} />
+                <Route path="/SignIn" element={<SignIn />} />                
 
                 {/* Dropdown Page */}
                 <Route path="/dropdown" element={<DropdownForm />} />

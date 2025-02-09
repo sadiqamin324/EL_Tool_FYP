@@ -1,39 +1,46 @@
+// import { initializeDatabase } from './db/index.js';
+// import { registerUser } from './src/controller/user.controller.js';
+// import { initializeUserModel, User } from './src/model/user.model.js';
+// import express from 'express';
+// import dotenv from 'dotenv';
+// import {   initializeDatabase } from './src/db/index.js';// Adjust the path as needed
+// import main from '../odoo-node-connection/index.js';
+// dotenv.config();
+// const app = express();
+// app.use(express.json());
+// const PORT = process.env.PORT || 5000;
+// app.use(cors()); // Enable CORS for all routes
+
+let Sign_Up_Info = [];
+let Sign_In_Info = [];
+let first_name, last_name, SignUp_email, SignUp_password;
+let SignIn_email, SignIn_password;
+
+export var Postgree_Credentials = { value: 0 };
+
 import express from "express";
-import { connectToDatabase } from "./src/db/index.js";
-import dotenv from "dotenv";
-import cors from "cors"; // Import CORS
-import main from "../odoo-node-connection/index.js"
+import sequelize from "./src/db/index.js"; // Ensure the path is correct
+import User from "./src/model/user.model.js"; // Ensure the path is correct
+import cors from "cors";
 
 const app = express();
-app.use(express.json());
-const PORT = process.env.PORT || 5000;
-app.use(cors()); // Enable CORS for all routes
+app.use(express.json()); // Middleware to parse JSON data
+app.use(cors());
+const PORT = 5000; // Keep the hardcoded port
 
-// Load environment variables
-dotenv.config({
-  path: "backend/.env", // Corrected path to .env file
-});
+// Sync database and create a sample user
+(async () => {
+  await sequelize.sync({ force: true }); // Drops & recreates tables (use with caution)
+  console.log("✅ Database synced.");
 
-// Connect to the database
-// connectToDatabase()
-//   .then(() => {
-//     // Start the server only if the database connection is successful
-//     alert('safee');
-//   })
-//   .catch((err) => {
-//     // Handle database connection failure
-//     console.log("Database connection failed!!!", err);
-//   });
-// Define the route to connect to the database
-app.get("/", (req, res) => {
-  res.json("Assalam O Alaikum Brothers!");
-});
+  // Create a sample user
+  await User.create({ name: "John Doe", email: "johndoe@example.com" });
+})();
 
-app.post("/connect-Postgree", async (req, res) => {
-  console.log("In process of connecting to database....");
-  const result = await connectToDatabase(); // Call the connection function
-  res.json(result); // Send the connection status to the frontend
-  console.log("Successfully connected to Postgree SQl");
+// Route to get all users
+app.get("/users", async (req, res) => {
+  const users = await User.findAll();
+  res.json(users);
 });
 
 app.post("/connect-OdooSH", async (req, res) => {
@@ -43,7 +50,7 @@ app.post("/connect-OdooSH", async (req, res) => {
   console.log("Successfully connected to Odoo SH");
 });
 
-
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`⚙️ Server is running at http://localhost:${PORT}`);
+// Start the server
+app.listen(PORT, () => {
+  console.log("🚀 Server running on http://localhost:3000");
 });
