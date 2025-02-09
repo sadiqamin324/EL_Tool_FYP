@@ -39,8 +39,8 @@ app.post("/connect-Postgree", async (req, res) => {
 app.post("/connect-OdooSH", async (req, res) => {
   console.log("In process of connecting to database....");
   main(); // Call the connection function
-  res.json(result); // Send the connection status to the frontend
-  console.log("Successfully connected to Postgree SQl");
+   // Send the connection status to the frontend
+  console.log("Successfully connected to Odoo SH");
 });
 
 
