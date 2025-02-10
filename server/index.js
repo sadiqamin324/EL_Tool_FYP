@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import { DataTypes } from "sequelize";
 import { Sequelize } from "sequelize";
+import { loginToOdoo } from "../backend/odootodbconnection/app.js";
+  // Change require to import
+//import { data } from "autoprefixer"
 
 const app = express();
 app.use(express.json()); // Middleware to parse JSON data
@@ -171,8 +174,17 @@ app.post("/Sign-Up", async (req, res) => {
 app.post("/connect-Odoo", async (req, res) => {
   const { source_name, source_type, username, port, server, database, password } =
     req.body;
-    console.log(server)
 
+
+  // // Odoo server configurations
+  // const odooUrl = 'http://localhost:8069';
+  // const db = 'NEDUniversity-7';
+  // const username = 'admin';  // Change this to your Odoo username
+  // const password = 'admin';  // Change this to your Odoo password
+
+ 
+
+  loginToOdoo(database, username, password);
   const sequelize = new Sequelize(database, username, password, {
     host: server, // Your DB host
     dialect: "postgres", // Specify PostgreSQL
@@ -188,6 +200,9 @@ app.post("/connect-Odoo", async (req, res) => {
     console.error("❌ Unable to connect to PostgreSQL:", error);
     return res.status(500).json({ error: "Database connection failed." });
   }
+
+
+ 
 
   // Define the User model
   const User = sequelize.define(
@@ -219,7 +234,7 @@ app.post("/connect-Odoo", async (req, res) => {
       timestamps: true, // ✅ Adds createdAt and updatedAt fields
     }
   );
-
+  // User.sync({ force: true });
   // Insert user data into the database
   try {
     const newUser = await User.create({
