@@ -1,9 +1,7 @@
 export default function SignIn() {
-    
   const inputs = document.getElementsByTagName("input");
 
   async function HandleSignInInfo() {
-
     var User_Info = [];
 
     for (let i = 0; i < inputs.length; i++) {
@@ -14,7 +12,7 @@ export default function SignIn() {
 
     if (User_Info.length == inputs.length) {
       try {
-        const response = await fetch("http://localhost:5000/SignInInfo", {
+        const response = await fetch("http://localhost:5000/Sign-In", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -30,9 +28,9 @@ export default function SignIn() {
         const data = await response.json();
 
         if (data.success) {
-          console.log("Sign Up Information reached successfully");
+          alert("User authenticated");
         } else {
-          console.log("Sign Up Information failed to reach successfully");
+          alert("user not found");
         }
       } catch (error) {
         console.error("Error:", error);
@@ -84,7 +82,10 @@ export default function SignIn() {
             </a>
           </p>
         </div>
-        <button className="w-[90%] p-2 text-white rounded-lg font-bold bg-[#fb6841]" onClick={HandleSignInInfo}>
+        <button
+          className="w-[90%] p-2 text-white rounded-lg font-bold bg-[#fb6841]"
+          onClick={HandleSignInInfo}
+        >
           Log In
         </button>
       </div>

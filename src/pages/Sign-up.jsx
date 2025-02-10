@@ -7,13 +7,10 @@ export default function SignUp() {
     for (let i = 0; i < inputs.length; i++) {
       if (inputs[i].value != "") {
         User_Info.push(inputs[i].value);
-        
       }
     }
-    
 
     if (User_Info.length == inputs.length) {
-      
       try {
         const response = await fetch("http://localhost:5000/Sign-Up", {
           method: "POST",
@@ -33,14 +30,14 @@ export default function SignUp() {
         if (data.success) {
           console.log("Sign Up Information reached successfully");
         } else {
-          console.log("Sign Up Information failed to reach successfully");
+          console.log("Sign Up Information failed to reach");
         }
       } catch (error) {
         console.error("Error:", error);
         alert("Failed to send information to backend");
       }
     } else if (User_Info.length != inputs.length) {
-        alert("Fill out all the remaining fields in the form")
+      alert("Fill out all the remaining fields in the form");
     }
   }
 
