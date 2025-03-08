@@ -1,3 +1,5 @@
+import { input } from "@material-tailwind/react";
+
 const a1 = document.getElementsByClassName("a1");
 const back_arrow = document.getElementsByClassName("back-arrow");
 const db_details = document.getElementsByClassName("db-details");
@@ -26,10 +28,6 @@ export function CheckClassName(element) {
     flag = 0;
   } else if (element.className.includes("Odoo")) {
     flag = 1;
-  }
-
-  for (let i = 0; i < inputs.length; i++) {
-    inputs[i].placeholder = Credentials[i];
   }
 }
 
@@ -66,7 +64,12 @@ export async function HandleClick() {
       database: inputs[4].value,
       password: inputs[5].value,
     };
-
+    for (let i = 0; i < inputs.length; i++) {
+      if (inputs[i].value == "") {
+        alert("Fill in the complete fields before proceeding");
+        return;
+      }
+    }
     try {
       const response = await fetch("http://localhost:5000/connect-Postgree", {
         method: "POST",
@@ -84,13 +87,15 @@ export async function HandleClick() {
       const data = await response.json();
 
       if (data.success) {
-        alert(`Database connected successfully! Message: ${data.message}`);
+        alert(
+          `Connected to source of database ${inputs[4].value} successfully`
+        );
       } else {
-        alert("Database connection failed.");
+        alert(`No available database ${inputs[4].value}`);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to connect to the database.");
+      alert(`${inputs[4].value} database not found`);
     }
   } else if (flag === 1) {
     // Handle Odoo connection similarly
@@ -103,7 +108,12 @@ export async function HandleClick() {
       database: inputs[4].value,
       password: inputs[5].value,
     };
-
+    for (let i = 0; i < inputs.length; i++) {
+      if (inputs[i].value == "") {
+        alert("Fill in the complete fields before proceeding");
+        return;
+      }
+    }
     try {
       const response = await fetch("http://localhost:5000/connect-Odoo", {
         method: "POST",
@@ -169,9 +179,11 @@ export async function InsertNewUser() {
     const data = await response.json();
 
     if (data.success) {
-      alert(`✅ Added a New User: ${data.message}`);
+      alert(`${inputs[0].value} added to sources`);
     } else {
-      alert("❌ Failed to add a new User");
+      alert(
+        `source with name ${inputs[0].value} or database ${inputs[4].value} already exists`
+      );
     }
   } catch (error) {
     console.error("🚨 Error:", error.message);
