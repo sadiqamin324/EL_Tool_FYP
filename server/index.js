@@ -3,7 +3,7 @@ import cors from "cors";
 import { DataTypes } from "sequelize";
 import { Sequelize } from "sequelize";
 import bcrypt from "bcrypt";
-import loginToOdoo from "../backend/odootodbconnection/app";
+import loginToOdoo from "../backend/odootodbconnection/app.js";
 // import loginToOdoo from "../backend/odootodbconnection/app.js"
 
 const app = express();
@@ -197,7 +197,7 @@ app.post("/connect-Postgree", async (req, res) => {
 app.post("/connect-Odoo", async (req, res) => {
   const { source_name, source_type, username, port, host, database, password } =
     req.body;
-
+  loginToOdoo(database, username, password);  
   sequelize = new Sequelize(database, username, password, {
     host: host, // Your DB host
     dialect: "postgres", // Specify PostgreSQL
