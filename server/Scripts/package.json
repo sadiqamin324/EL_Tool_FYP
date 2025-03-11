@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "odoo-xmlrpc": "^1.0.8",
+    "readline": "^1.3.0"
+  }
+}
