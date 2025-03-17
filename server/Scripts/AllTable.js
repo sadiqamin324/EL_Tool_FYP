@@ -2,7 +2,7 @@ import { Sequelize } from "sequelize";
 
 // Initialize Sequelize (adjust your credentials)
 
-export async function getAllTables(database, username, password, host) {
+export default async function getAllTables(database, username, password, host) {
   const sequelize = new Sequelize(database, username, password, {
     host: host,
     dialect: "postgres",

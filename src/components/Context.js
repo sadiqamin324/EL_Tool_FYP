@@ -15,4 +15,7 @@ export const Password = createContext();
 export const SourceColumns = createContext();
 
 export const DialogueContext = createContext();
+
 export const isHidden = createContext();
+
+export const Source_Rows = createContext();

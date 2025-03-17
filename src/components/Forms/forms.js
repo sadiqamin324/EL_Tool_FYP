@@ -1,19 +1,11 @@
 import { input } from "@material-tailwind/react";
-
+import { Title } from "../Context";
+import { useContext } from "react";
 const a1 = document.getElementsByClassName("a1");
 const back_arrow = document.getElementsByClassName("back-arrow");
 const db_details = document.getElementsByClassName("db-details");
 const inputs = document.getElementsByTagName("input");
 var flag; //flag is a variable for identifying which source is choosen by the user. 0 for Postgree and 1 for OdooSH
-
-const Credentials = [
-  "Source_name",
-  "User Name",
-  "Port",
-  "Host",
-  "Database Name",
-  "Password",
-];
 
 export function OpenDropDown() {
   a1[0].classList.toggle("hidden");
@@ -91,7 +83,7 @@ export async function HandleClick() {
           `Connected to source of database ${inputs[4].value} successfully`
         );
       } else {
-        alert(`No available database ${inputs[4].value}`);
+        alert(`No database with name ${inputs[4].value}`);
       }
     } catch (error) {
       console.error("Error:", error);

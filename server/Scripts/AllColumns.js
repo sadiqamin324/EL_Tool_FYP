@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 
-export async function getAllColumns(
+export default async function getAllColumns(
   database,
   username,
   password,
@@ -21,7 +21,11 @@ export async function getAllColumns(
       WHERE table_name = '${tableName}' AND table_schema = 'public';
     `);
 
-    return { tableName, columns: columns.map((col) => col.column_name) };
+    return {
+      database,
+      tableName,
+      columns: columns.map((col) => col.column_name),
+    };
   } catch (error) {
     console.error("Error fetching column names:", error);
     return { tableName, columns: [] }; // Return empty array on error

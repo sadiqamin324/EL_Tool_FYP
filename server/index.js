@@ -3,7 +3,15 @@ import cors from "cors";
 import { DataTypes } from "sequelize";
 import { Sequelize } from "sequelize";
 import bcrypt from "bcrypt";
-import loginToOdoo from "../backend/odootodbconnection/app";
+import {
+  Source_Table_Model,
+  Destination_Table_Model,
+} from "./src/model/user.model.js";
+import { Op } from "sequelize";
+import getAllTables from "./Scripts/AllTable.js";
+import getAllColumns from "./Scripts/AllColumns.js";
+import getAllRows from "./Scripts/AllRows.js";
+// import loginToOdoo from "../backend/odootodbconnection/app";
 // import loginToOdoo from "../backend/odootodbconnection/app.js"
 
 const app = express();
@@ -513,11 +521,10 @@ app.post("/get-pipeline-data", async (req, res) => {
     const destination_rows = await Destination.findAll({
       attributes: [
         "id",
-        "destination_name",
-        "destination_type",
         "host",
         "port_number",
         "active_status",
+        "database_name",
       ],
       where: {
         active_status: "active",
@@ -602,27 +609,6 @@ app.post("/get-all-columns", async (req, res) => {
 
   let user;
   try {
-    // Define the models dynamically
-    // if (title == "Source") {
-    //   user = system_db.define(title, Source_Table_Model, {
-    //     timestamps: true,
-    //   });
-    // } else if (title == "Destination") {
-    //   user = system_db.define(title, Destination_Table_Model, {
-    //     timestamps: true,
-    //   });
-    // }
-
-    //   const all_columns = await user.findAll({
-    //     where: {
-    //       [`${title.toLowerCase()}_name`]: {
-    //         [Op.in]: selectedSources, // Filters rows where source_name is in the array
-    //       },
-    //     },
-    //     attributes: ["database_name", "host"],
-    //     raw: true, // Only fetch database_name column
-    //   });
-
     // Send the response with data
     for (let i = 0; i < selectedTables.length; i++) {
       const result = await getAllColumns(
@@ -646,6 +632,117 @@ app.post("/get-all-columns", async (req, res) => {
       message: "Failed to fetch columns",
       error: error.message,
     });
+  }
+});
+
+app.post("/get-all-rows", async (req, res) => {
+  const { selected_Columns } = req.body;
+  const { Global_Password } = req.body;
+  const All_Rows = [];
+
+  let user;
+  try {
+    // Send the response with data
+    for (let i = 0; i < selected_Columns.length; i++) {
+      const result = await getAllRows(
+        selected_Columns[i].databaseName,
+        Global_Password,
+        selected_Columns[i].tableName,
+        selected_Columns[i].columns
+      );
+      All_Rows.push(result);
+    }
+    res.json({
+      success: true,
+      message: "All rows fetched successfully",
+      rows: All_Rows,
+    });
+  } catch (error) {
+    console.error("Error fetching all rows:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch rows",
+      error: error.message,
+    });
+  }
+});
+
+app.post("/dump-data", async (req, res) => {
+  const { password } = req.body;
+  const { database_name } = req.body;
+  const { dumpdata } = req.body;
+
+  // dumpdata.forEach((element) => {
+  //   console.log(element.columnArray);
+  // });
+  const sequelize = new Sequelize(database_name, "postgres", password, {
+    host: "localhost", // Your DB host
+    dialect: "postgres", // Specify PostgreSQL
+    logging: false, // Disable logging queries (set true for debugging)
+  });
+
+  function getDataType(column) {
+    if (column.includes("id")) return DataTypes.INTEGER; // IDs are usually integers
+    if (column.includes("date") || column.includes("time"))
+      return DataTypes.DATE; // Dates
+    if (column.includes("active")) return DataTypes.BOOLEAN; // Boolean values
+    return DataTypes.STRING; // Default to STRING
+  }
+
+  async function createAndInsertTable(dumpdata) {
+    const { tableName, columnArray, rows } = dumpdata;
+
+    // Define fields dynamically
+    const fields = {};
+    columnArray.forEach((col) => {
+      fields[col] = {
+        type: getDataType(col),
+        allowNull: true,
+      };
+    });
+
+    // Define the model dynamically
+    const DynamicModel = sequelize.define(tableName, fields, {
+      timestamps: false, // Set to true if `createdAt` and `updatedAt` are needed
+      tableName: tableName,
+    });
+
+    // Sync the table (Creates table if not exists)
+    await DynamicModel.sync({ force: true });
+
+    // Insert rows into the table
+    for (const row of rows) {
+      const rowData = {};
+      columnArray.forEach((col, index) => {
+        rowData[col] = row[col];
+      });
+
+      await DynamicModel.create(rowData);
+    }
+
+    console.log(`✅ Data inserted into '${tableName}' successfully!`);
+  }
+
+  async function createAndInsertTables(dumpdataArray) {
+    for (const dumpdata of dumpdataArray) {
+      await createAndInsertTable(dumpdata);
+    }
+    console.log("✅ All tables inserted successfully!");
+  }
+
+  createAndInsertTables(dumpdata).catch(console.error);
+  // Test the database connection
+  try {
+    await sequelize.authenticate();
+    console.log("Destination_db connected Successfully");
+
+    return res.json({
+      success: true,
+      message: "Connected to Destination_db successfully!",
+    });
+  } catch (error) {
+    console.error("❌ Unable to connect to Destination_db:", error);
+    return res.status(500).json({ error: "Database connection failed." });
   }
 });
 // Start the server

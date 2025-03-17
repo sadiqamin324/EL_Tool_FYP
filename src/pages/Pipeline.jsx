@@ -2,11 +2,9 @@ import { useEffect, useState, useRef, useContext } from "react";
 import { SourceTables, DestTables, Password } from "../components/Context.js";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Tables } from "./Tables.jsx";
-import Inputbox from "../components/InputBox.jsx";
 
 export function Pipeline() {
   const [SourceData, setSourceData] = useState(null);
-  const [DesinationData, setDesinationData] = useState(null);
   const [password, setpassword] = useState(null);
   const navigate = useNavigate(null);
 
@@ -31,9 +29,9 @@ export function Pipeline() {
 
         if (data.success) {
           console.log("pipeline data recieved from backend");
-          //   console.log(data.source_data[0]);
+        
           setSourceData(data.source_data);
-          setDesinationData(data.destination_data);
+          // setDesinationData(data.destination_data);
         } else {
           alert("failed to send pipeline data request to backend");
         }
@@ -49,7 +47,6 @@ export function Pipeline() {
     <div className="w-[100rem] h-[98vh]">
       <div className="flex h-1/2 justify-around items-center">
         <SourceBox title="Source" data={SourceData} password={password} />
-        <SourceBox title="Destination" data={DesinationData} />
       </div>
       <div className="w-full">
         <button
@@ -83,6 +80,15 @@ function SourceBox({ title = "", data, password }) {
     ShortTitle = title;
   }
 
+  useEffect(() => {
+    const storedSelections = localStorage.getItem("selectedIndexesSources");
+    if (storedSelections) {
+      const parsedSelections = JSON.parse(storedSelections);
+      setSelectedIndexes(new Set(parsedSelections));
+      settickedboxes(parsedSelections.length); // Ensure buttons update
+    }
+  }, []);
+
   function toggleSelection(index) {
     setSelectedIndexes((prev) => {
       const newSet = new Set(prev);
@@ -92,6 +98,13 @@ function SourceBox({ title = "", data, password }) {
         newSet.add(index); // Check
       }
       settickedboxes(newSet.size);
+
+      // Save to localStorage
+      localStorage.setItem(
+        "selectedIndexesSources",
+        JSON.stringify([...newSet])
+      );
+
       return newSet;
     });
   }
@@ -106,17 +119,6 @@ function SourceBox({ title = "", data, password }) {
       navigate("/all-tables");
     });
   }
-
-  useEffect(() => {
-    if (!buttonRef.current) return; // Ensure button exists before modifying
-    if (tickedboxes > 0) {
-      buttonRef.current.classList.replace("bg-blue-300", "bg-blue-500");
-      buttonRef.current.classList.replace("cursor-auto", "cursor-pointer");
-    } else {
-      buttonRef.current.classList.replace("bg-blue-500", "bg-blue-300");
-      buttonRef.current.classList.replace("cursor-pointer", "cursor-auto");
-    }
-  }, [tickedboxes]);
 
   useEffect(() => {
     if (!selectedSources || selectedSources.length === 0) return;
@@ -198,7 +200,11 @@ function SourceBox({ title = "", data, password }) {
         <button
           ref={buttonRef}
           onClick={ClickSelect}
-          className="w-1/6 h-1/2 my-4 mx-2 bg-blue-300 rounded-md text-white cursor-auto"
+          className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+            tickedboxes > 0
+              ? "bg-blue-500 cursor-pointer"
+              : "bg-blue-300 cursor-auto"
+          }`}
         >
           Select
         </button>

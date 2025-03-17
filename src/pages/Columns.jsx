@@ -1,23 +1,34 @@
 import { tab } from "@material-tailwind/react";
 import {
   Password,
-  SourceTables,
   DestTables,
   SourceColumns,
+  Source_Rows,
 } from "../components/Context";
 import { useContext, useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 
 export function Columns() {
-  const [tickedboxes, settickedboxes] = useState(0);
+  const [tickedboxes, settickedboxes] = useState();
   const { dest_columns } = useContext(DestTables);
   const [selectedIndexes, setSelectedIndexes] = useState(new Set());
-  const [selectedTables, setselectedTables] = useState(null);
+  const [selected_Columns, setselected_Columns] = useState(null);
   const SelectbuttonRef = useRef(null);
   const ClearbuttonRef = useRef(null);
-  const { Global_Password } = useContext(Password);
   const { source_columns } = useContext(SourceColumns);
+  const { setsource_rows } = useContext(Source_Rows);
+  const { Global_Password } = useContext(Password);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedSelections = localStorage.getItem("selectedIndexesColumns");
+    if (storedSelections) {
+      const parsedSelections = JSON.parse(storedSelections);
+      setSelectedIndexes(new Set(parsedSelections));
+      settickedboxes(parsedSelections.length); // Ensure buttons update
+    }
+  }, []);
 
   function toggleSelection(index) {
     setSelectedIndexes((prev) => {
@@ -28,32 +39,85 @@ export function Columns() {
         newSet.add(index); // Check
       }
       settickedboxes(newSet.size);
+
+      // Save to localStorage
+      localStorage.setItem("selectedIndexesColumns", JSON.stringify([...newSet]));
+
       return newSet;
     });
   }
 
   function ClickSelect() {
-    source_columns.map((element) => {
-      console.log(element);
+    let selectedNames = [];
+    [...selectedIndexes].map((index) => {
+      selectedNames.push({
+        database: source_columns[index[0]].database,
+        tableName: source_columns[index[0]].tableName,
+        columns: source_columns[index[0]].columns[index[2]],
+      });
     });
+
+    const groupedData = Object.values(
+      selectedNames.reduce((acc, { database, tableName, columns }) => {
+        const key = `${database}-${tableName}`;
+
+        // If this database-table combination doesn't exist, initialize it
+        if (!acc[key]) {
+          acc[key] = {
+            databaseName: database,
+            tableName: tableName,
+            columns: [],
+          };
+        }
+
+        // Push the column into the array
+        acc[key].columns.push(columns);
+
+        return acc;
+      }, {})
+    );
+
+    setselected_Columns(groupedData);
   }
 
-  //   function ClearTicked() {
-  //     setSelectedIndexes(new Set()); // Reset selected checkboxes
-  //     settickedboxes(0); // Reset counter
-  //   }
+  function ClearTicked() {
+    setSelectedIndexes(new Set()); // Reset selected checkboxes
+    settickedboxes(0); // Reset counter
+    localStorage.removeItem("selectedIndexesColumns"); // Remove from storage
+  }
 
   useEffect(() => {
-    if (!SelectbuttonRef.current || !ClearbuttonRef.current) return; // Ensure button exists before modifying
-    const isActive = tickedboxes > 0;
-    SelectbuttonRef.current.className = `w-1/6 h-1/2 my-4 mx-2 rounded-md text-white  ${
-      isActive ? "bg-blue-500 cursor-pointer" : "bg-blue-300 cursor-auto"
-    }`;
+    if (!selected_Columns || selected_Columns.length === 0) return;
 
-    ClearbuttonRef.current.className = `w-1/6 h-1/2 my-4 mx-2 rounded-md text-white  ${
-      isActive ? "bg-red-400 cursor-pointer" : "bg-red-200 cursor-auto"
-    }`;
-  }, [tickedboxes]);
+    const fetchRows = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/get-all-rows", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ selected_Columns, Global_Password }),
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          console.log("All rows of selected columns recieved from backend");
+          setsource_rows(data.rows);
+          navigate("/all-rows");
+        } else {
+          alert("Failed to send all rows request to backend");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to send information to backend");
+      }
+    };
+    fetchRows();
+  }, [selected_Columns]);
 
   return (
     <div className="w-5/6 h-5/6 bg-white border border-black">
@@ -72,9 +136,14 @@ export function Columns() {
             {source_columns && source_columns.length > 0 ? (
               source_columns.map((element, index) => (
                 <div key={index}>
-                  <p className="text-center text-lg font-bold">
-                    {element.tableName}
-                  </p>
+                  <div className="flex justify-evenly">
+                    <p className="text-center text-lg font-bold">
+                      {`Database: ${element.database}`}
+                    </p>
+                    <p className="text-center text-lg font-bold">
+                      {`Tablename: ${element.tableName}`}
+                    </p>
+                  </div>
                   {element.columns.map((column_name, idx) => {
                     const uniqueId = `${index}-${idx}`; // Ensuring uniqueness
                     return (
@@ -116,25 +185,34 @@ export function Columns() {
                 Back
               </button>
             </div>
-            {/* <button
+            <button
               ref={ClearbuttonRef}
-              className="self-center w-1/6 h-1/2 my-4 mx-2 text-white rounded-md"
+              onClick={ClearTicked}
+              className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+                tickedboxes > 0
+                  ? "bg-blue-500 cursor-pointer"
+                  : "bg-blue-300 cursor-auto"
+              }`}
             >
               Clear All
             </button>
             <button
               onClick={ClickSelect}
               ref={SelectbuttonRef}
-              className="w-1/6 h-1/2 self-end my-4 mx-2 rounded-md text-white"
+              className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+                tickedboxes > 0
+                  ? "bg-red-400 cursor-pointer"
+                  : "bg-red-200 cursor-auto"
+              }`}
             >
               Select
-            </button> */}
+            </button>
           </div>
         </div>
 
         <div className="flex flex-col w-1/2 overflow-x-auto">
           <div className="grid grid-cols-7 gap-x-4 py-2 pr-4 border-y border-l border-black w-[100rem]">
-            {dest_columns &&
+            {/* {dest_columns &&
               dest_columns.length > 0 &&
               Object.entries(dest_columns[0]).map(([key, value]) => (
                 <p key={key} className="py-1 text-center font-semibold text-sm">
@@ -155,7 +233,7 @@ export function Columns() {
               <div>
                 <p>No data available</p>
               </div>
-            )}
+            )} */}
 
             {/* Destination Pipeline Table */}
           </div>

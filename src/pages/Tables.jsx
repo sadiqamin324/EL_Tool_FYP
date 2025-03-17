@@ -20,6 +20,15 @@ export function Tables() {
   const { setsource_columns } = useContext(SourceColumns);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const storedSelections = localStorage.getItem("selectedIndexesTables");
+    if (storedSelections) {
+      const parsedSelections = JSON.parse(storedSelections);
+      setSelectedIndexes(new Set(parsedSelections));
+      settickedboxes(parsedSelections.length); // Ensure buttons update
+    }
+  }, []);
+
   function toggleSelection(index) {
     setSelectedIndexes((prev) => {
       const newSet = new Set(prev);
@@ -29,6 +38,13 @@ export function Tables() {
         newSet.add(index); // Check
       }
       settickedboxes(newSet.size);
+
+      // Save to localStorage
+      localStorage.setItem(
+        "selectedIndexesTables",
+        JSON.stringify([...newSet])
+      );
+
       return newSet;
     });
   }
@@ -66,6 +82,7 @@ export function Tables() {
         if (data.success) {
           console.log("All columns of selected tables recieved from backend");
           setsource_columns(data.columns);
+
           navigate("/all-columns");
         } else {
           alert("Failed to send All columns request to backend");
@@ -76,11 +93,13 @@ export function Tables() {
       }
     };
     fetchColumns();
-  }, [selectedTables]);
+  });
+  [selectedTables];
 
   function ClearTicked() {
     setSelectedIndexes(new Set()); // Reset selected checkboxes
     settickedboxes(0); // Reset counter
+    localStorage.removeItem("selectedIndexesColumns"); // Remove from storage
   }
 
   useEffect(() => {
@@ -159,14 +178,22 @@ export function Tables() {
             <button
               ref={ClearbuttonRef}
               onClick={ClearTicked}
-              className="w-1/6 h-1/2 my-4 mx-2 text-white rounded-md"
+              className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+                tickedboxes > 0
+                  ? "bg-blue-500 cursor-pointer"
+                  : "bg-blue-300 cursor-auto"
+              }`}
             >
               Clear All
             </button>
             <button
               onClick={ClickSelect}
               ref={SelectbuttonRef}
-              className="w-1/6 h-1/2 my-4 mx-2 rounded-md text-white"
+              className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+                tickedboxes > 0
+                  ? "bg-red-400 cursor-pointer"
+                  : "bg-red-200 cursor-auto"
+              }`}
             >
               Select
             </button>

@@ -53,10 +53,12 @@ export default function Dropdown() {
           </div>
         </div>
         <div className="db-details hidden w-5/6 flex flex-col">
-          <InputBox label="source name" />
+          <InputBox
+            label={isSource == true ? "source_name" : "destination_name"}
+          />
           <InputBox label="user name" />
           <InputBox label="port" />
-          <InputBox label="source host" />
+          <InputBox label="host" />
           <InputBox label="database name" />
           <InputBox type="password" label="password" />
         </div>
