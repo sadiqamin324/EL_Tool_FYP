@@ -3,21 +3,28 @@ import cors from "cors";
 import { DataTypes } from "sequelize";
 import { Sequelize } from "sequelize";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import {
   Source_Table_Model,
   Destination_Table_Model,
 } from "./src/model/user.model.js";
+import readline from "readline";
+import Odoo from "odoo-xmlrpc"; // Importing the Odoo XML-RPC library
 import { Op } from "sequelize";
 import getAllTables from "./Scripts/AllTable.js";
 import getAllColumns from "./Scripts/AllColumns.js";
 import getAllRows from "./Scripts/AllRows.js";
-// import loginToOdoo from "../backend/odootodbconnection/app";
-// import loginToOdoo from "../backend/odootodbconnection/app.js"
+import { fetchOdooModules } from "./Scripts/odooModules.js";
+import { fetchOdooModuleData } from "./Scripts/odooData.js";
+import { Json } from "sequelize/lib/utils";
+import { error } from "console";
 
 const app = express();
 app.use(express.json()); // Middleware to parse JSON data
 app.use(cors());
 const PORT = 5000; // Keep the hardcoded port
+//Odoo Url
+const url = "http://127.0.0.1";
 
 let sequelize;
 let system_db;
@@ -44,12 +51,28 @@ async function EnterData(first_name, last_name, email, password) {
   });
   console.log(user.email);
 }
+const algorithm = "aes-256-cbc"; // Strong encryption algorithm
+const secretKey = Buffer.from(process.env.SECRET_KEY, "hex");
+const iv = crypto.randomBytes(16); // Initialization vector
 
-async function hashPassword(password) {
-  const saltRounds = 10; // Defines the complexity of hashing
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
+// Encrypt function
+function encrypt(text) {
+  const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return { encryptedData: encrypted, iv: iv.toString("hex") };
+}
 
-  return hashedPassword;
+// Decrypt function
+function decrypt(encryptedData, ivHex) {
+  const decipher = crypto.createDecipheriv(
+    algorithm,
+    secretKey,
+    Buffer.from(ivHex, "hex")
+  );
+  let decrypted = decipher.update(encryptedData, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
 }
 
 // Route to get all users
@@ -72,7 +95,7 @@ app.post("/validate-password", async (req, res) => {
     dialect: "postgres", // Specify PostgreSQL
     logging: false, // Disable logging queries (set true for debugging)
   });
-
+  // main();
   // Test the database connectio
 
   try {
@@ -130,14 +153,14 @@ app.post("/Sign-Up", async (req, res) => {
 
   // Insert user data into the database
   try {
-    const hashedPassword = await hashPassword(password);
+    const encrypted_password = encrypt(password);
     // console.log(hashedPassword);
 
     const newUser = await User.create({
       first_name: first_name,
       last_name: last_name,
       email: email,
-      password: hashedPassword,
+      password: JSON.stringify(encrypted_password),
     });
 
     console.log("✅ User record created successfully:", newUser);
@@ -239,24 +262,34 @@ app.post("/connect-Odoo", async (req, res) => {
   const { source_name, source_type, username, port, host, database, password } =
     req.body;
 
-  sequelize = new Sequelize(database, username, password, {
-    host: host, // Your DB host
-    dialect: "postgres", // Specify PostgreSQL
-    logging: false, // Disable logging queries (set true for debugging)
-  });
-
   try {
-    await sequelize.authenticate();
-    console.log("✅ Connected to Postgres Successfully");
-    return res.json({
-      success: true,
-      message: "Connected to Odoo connected successfully!",
+    const OdooInstance = new Odoo({
+      url: "http://127.0.0.1",
+      port: port,
+      db: database,
+      username: username,
+      password: password,
+    });
+
+    return new Promise((resolve, reject) => {
+      OdooInstance.connect(function (err) {
+        if (err) {
+          console.error("❌ Odoo connection failed:", JSON.stringify(err));
+          return res.json({
+            success: false,
+            message: "Error while connecting to Odoo",
+          });
+        }
+        console.log("✅ Odoo connection successful");
+        return res.json({
+          success: true,
+          message: "Connected successfully to Odoo",
+        });
+      });
     });
   } catch (error) {
-    console.error("❌ Unable to connect to PostgreSQL:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to connect to Postgres SQL" });
+    console.error("❌ Unexpected error in Odoo connection:", error);
+    return Promise.reject(`❌ Unexpected error: ${error.message}`);
   }
 });
 
@@ -266,6 +299,7 @@ app.post("/save-details", async (req, res) => {
 
   const { source_name, source_type, username, port, host, database, password } =
     req.body;
+  console.log(username);
 
   let User;
   if (object.flag == 0) {
@@ -278,7 +312,6 @@ app.post("/save-details", async (req, res) => {
     fieldNames.name = "destination_name";
     fieldNames.type = "destination_type";
   }
-  console.log(modifier);
   // Define the User model
 
   // Define the model dynamically
@@ -313,14 +346,15 @@ app.post("/save-details", async (req, res) => {
 
   // Insert user data into the database
   try {
-    const hashedPassword = await hashPassword(password);
+    const encryptedPassword = encrypt(password);
 
     const newUser = await User.create({
       [fieldNames.name]: source_name,
       [fieldNames.type]: source_type,
       host: host,
       port_number: port,
-      password: hashedPassword,
+      user_name: username,
+      password: JSON.stringify(encryptedPassword),
       database_name: database,
     });
     console.log("✅ User record created successfully:", newUser);
@@ -519,13 +553,7 @@ app.post("/get-pipeline-data", async (req, res) => {
 
     // Fetch active destination rows
     const destination_rows = await Destination.findAll({
-      attributes: [
-        "id",
-        "host",
-        "port_number",
-        "active_status",
-        "database_name",
-      ],
+      attributes: ["destination_name", "database_name"],
       where: {
         active_status: "active",
       },
@@ -548,10 +576,78 @@ app.post("/get-pipeline-data", async (req, res) => {
   }
 });
 
+app.post("/get-odoo-data", async (req, res) => {
+  const { selectedmodules } = req.body;
+  let Odoo_Tables = [];
+
+  try {
+    // Define the Source model from system_db
+    const UserModel = system_db.define("Source", Source_Table_Model, {
+      timestamps: true,
+    });
+
+    // Fetch matching database configuration from PostgreSQL
+    const rows = await UserModel.findAll({
+      where: {
+        database_name: selectedmodules.database,
+      },
+      attributes: [
+        "database_name",
+        "host",
+        "source_type",
+        "user_name",
+        "port_number",
+        "password",
+      ],
+      raw: true, // Fetch as plain JSON object
+    });
+
+    // Ensure at least one record is found
+    if (!rows.length) {
+      throw new Error("No matching database found for the given module.");
+    }
+
+    // Extract and decrypt password
+    const { encryptedData, iv } = JSON.parse(rows[0].password);
+    const decryptedPassword = decrypt(encryptedData, iv);
+
+    // Store Odoo tables data
+    const Odoo_Tables = [];
+
+    // Fetch data for each selected module
+    for (const module of selectedmodules.modules) {
+      const result = await fetchOdooModuleData(
+        url, // Assuming 'host' contains the Odoo URL
+        rows[0].port_number,
+        rows[0].database_name,
+        rows[0].user_name,
+        decryptedPassword,
+        module.name
+      );
+      Odoo_Tables.push(result);
+    }
+
+    // Send success response
+    res.json({
+      success: true,
+      message: "All tables fetched successfully",
+      tables: Odoo_Tables, // Now properly contains fetched tables
+    });
+  } catch (error) {
+    console.error("Error fetching all tables:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch tables data",
+      error: error.message,
+    });
+  }
+});
+
 app.post("/get-all-tables", async (req, res) => {
   const { title } = req.body;
   const { selectedSources } = req.body;
-  const All_Tables = [];
+  const All_Postgre_Tables = [];
+  let All_Odoo_Modules = [];
 
   let user;
   try {
@@ -566,31 +662,54 @@ app.post("/get-all-tables", async (req, res) => {
       });
     }
 
-    const all_tables = await user.findAll({
+    const rows = await user.findAll({
       where: {
         [`${title.toLowerCase()}_name`]: {
           [Op.in]: selectedSources, // Filters rows where source_name is in the array
         },
       },
-      attributes: ["database_name", "host"],
+      attributes: [
+        "database_name",
+        "host",
+        "source_type",
+        "user_name",
+        "port_number",
+        "password",
+      ],
       raw: true, // Only fetch database_name column
     });
 
     // Send the response with data
-    for (let i = 0; i < all_tables.length; i++) {
-      const result = await getAllTables(
-        all_tables[i].database_name,
-        "postgres",
-        fields.password,
-        all_tables[i].host
-      );
-      All_Tables.push(result);
-    }
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].source_type == "Postgres SQL") {
+        const result = await getAllTables(
+          rows[i].database_name,
+          "postgres",
+          fields.password,
+          rows[i].host
+        );
+        All_Postgre_Tables.push(result);
+      } else if (rows[i].source_type == "Odoo") {
+        const { encryptedData, iv } = JSON.parse(rows[i].password);
 
+        const result = await fetchOdooModules(
+          url,
+          rows[i].port_number,
+          rows[i].database_name,
+          rows[i].user_name,
+          decrypt(encryptedData, iv)
+        );
+
+        All_Odoo_Modules = result;
+      }
+    }
     res.json({
       success: true,
       message: "All tables fetched successfully",
-      tables: All_Tables,
+      tables: {
+        postgres_tables: All_Postgre_Tables,
+        odoo_modules: All_Odoo_Modules,
+      },
     });
   } catch (error) {
     console.error("Error fetching all tables:", error);
@@ -620,6 +739,7 @@ app.post("/get-all-columns", async (req, res) => {
       );
       All_Columns.push(result);
     }
+
     res.json({
       success: true,
       message: "All columns fetched successfully",
@@ -644,8 +764,9 @@ app.post("/get-all-rows", async (req, res) => {
   try {
     // Send the response with data
     for (let i = 0; i < selected_Columns.length; i++) {
+      // console.log("database name", selected_Columns[i].databaseName);
       const result = await getAllRows(
-        selected_Columns[i].databaseName,
+        selected_Columns[i].database,
         Global_Password,
         selected_Columns[i].tableName,
         selected_Columns[i].columns
@@ -672,33 +793,55 @@ app.post("/dump-data", async (req, res) => {
   const { database_name } = req.body;
   const { dumpdata } = req.body;
 
-  // dumpdata.forEach((element) => {
-  //   console.log(element.columnArray);
-  // });
+  console.log("Database name", database_name);
   const sequelize = new Sequelize(database_name, "postgres", password, {
     host: "localhost", // Your DB host
     dialect: "postgres", // Specify PostgreSQL
     logging: false, // Disable logging queries (set true for debugging)
   });
 
-  function getDataType(column) {
-    if (column.includes("id")) return DataTypes.INTEGER; // IDs are usually integers
-    if (column.includes("date") || column.includes("time"))
-      return DataTypes.DATE; // Dates
-    if (column.includes("active")) return DataTypes.BOOLEAN; // Boolean values
-    return DataTypes.STRING; // Default to STRING
-  }
+  function getDataType(column, value) {
+    column = column.toLowerCase(); // Convert to lowercase for case-insensitive comparison
 
+    // Check if the column is an array
+    if (Array.isArray(value)) {
+      // Handle empty arrays specifically
+      if (value.length === 0) {
+        return DataTypes.JSONB; // For PostgreSQL, you can use JSONB or JSON data type for arrays
+      }
+      return DataTypes.JSONB; // Use JSONB or ARRAY depending on the database
+    }
+
+    // Check if the column name includes "id" (e.g., user_id, account_id)
+    if (column.includes("id")) return DataTypes.INTEGER;
+
+    // Check for date or time-related columns (e.g., created_at, updated_at, event_date)
+    if (
+      column.includes("date") ||
+      column.includes("time") ||
+      column.includes("timestamp")
+    )
+      return DataTypes.DATE;
+
+    // Check for boolean columns (e.g., is_active, is_enabled, active)
+    if (column.includes("active") || column.includes("enabled"))
+      return DataTypes.BOOLEAN;
+
+    // Default case: return string for everything else
+    return DataTypes.STRING;
+  }
   async function createAndInsertTable(dumpdata) {
     const { tableName, columnArray, rows } = dumpdata;
 
     // Define fields dynamically
     const fields = {};
-    columnArray.forEach((col) => {
-      fields[col] = {
-        type: getDataType(col),
-        allowNull: true,
-      };
+    rows.forEach((row) => {
+      columnArray.forEach((col) => {
+        fields[col] = {
+          type: getDataType(col, row[col]),
+          allowNull: true,
+        };
+      });
     });
 
     // Define the model dynamically
@@ -730,7 +873,7 @@ app.post("/dump-data", async (req, res) => {
     console.log("✅ All tables inserted successfully!");
   }
 
-  createAndInsertTables(dumpdata).catch(console.error);
+  createAndInsertTables(dumpdata).catch(console.log(error));
   // Test the database connection
   try {
     await sequelize.authenticate();
@@ -745,6 +888,7 @@ app.post("/dump-data", async (req, res) => {
     return res.status(500).json({ error: "Database connection failed." });
   }
 });
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

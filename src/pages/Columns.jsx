@@ -4,92 +4,129 @@ import {
   DestTables,
   SourceColumns,
   Source_Rows,
+  Odoo_Data,
 } from "../components/Context";
 import { useContext, useRef, useState, useEffect } from "react";
 import { data, useNavigate } from "react-router-dom";
+import {
+  toggleSelection,
+  ClearTicked,
+  Track_ticked,
+} from "../components/Functions";
+import { LoaderPage } from "../components/Loader";
 
 export function Columns() {
-  const [tickedboxes, settickedboxes] = useState();
+  const [tickedboxes1, settickedboxes1] = useState();
+  const [tickedboxes2, settickedboxes2] = useState();
+  const [selectedIndexes1, setSelectedIndexes1] = useState(new Set());
+  const [selectedIndexes2, setSelectedIndexes2] = useState(new Set());
   const { dest_columns } = useContext(DestTables);
-  const [selectedIndexes, setSelectedIndexes] = useState(new Set());
   const [selected_Columns, setselected_Columns] = useState(null);
+  const [dataArrived, setdataArrived] = useState(false);
   const SelectbuttonRef = useRef(null);
   const ClearbuttonRef = useRef(null);
   const { source_columns } = useContext(SourceColumns);
   const { setsource_rows } = useContext(Source_Rows);
   const { Global_Password } = useContext(Password);
+  const { odoo_columns, setodoo_records } = useContext(Odoo_Data);
 
   const navigate = useNavigate();
+  const storage_item_1 = "selectedColumnsPostgres";
+  const storage_item_2 = "selectedColumnsOdoo";
 
   useEffect(() => {
-    const storedSelections = localStorage.getItem("selectedIndexesColumns");
-    if (storedSelections) {
-      const parsedSelections = JSON.parse(storedSelections);
-      setSelectedIndexes(new Set(parsedSelections));
-      settickedboxes(parsedSelections.length); // Ensure buttons update
+    if (
+      source_columns &&
+      source_columns.length &&
+      odoo_columns &&
+      odoo_columns.length
+    ) {
+      setdataArrived(true);
     }
+  }, [source_columns, odoo_columns]);
+
+  useEffect(() => {
+    Track_ticked(setSelectedIndexes1, settickedboxes1, storage_item_1);
+    Track_ticked(setSelectedIndexes2, settickedboxes2, storage_item_2);
   }, []);
 
-  function toggleSelection(index) {
-    setSelectedIndexes((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index); // Uncheck
-      } else {
-        newSet.add(index); // Check
-      }
-      settickedboxes(newSet.size);
+  function Group_PSQL_Columns(data) {
+    return Object.values(
+      data.reduce((acc, item) => {
+        const key = `${item.database}-${item.tableName}`;
 
-      // Save to localStorage
-      localStorage.setItem("selectedIndexesColumns", JSON.stringify([...newSet]));
-
-      return newSet;
-    });
-  }
-
-  function ClickSelect() {
-    let selectedNames = [];
-    [...selectedIndexes].map((index) => {
-      selectedNames.push({
-        database: source_columns[index[0]].database,
-        tableName: source_columns[index[0]].tableName,
-        columns: source_columns[index[0]].columns[index[2]],
-      });
-    });
-
-    const groupedData = Object.values(
-      selectedNames.reduce((acc, { database, tableName, columns }) => {
-        const key = `${database}-${tableName}`;
-
-        // If this database-table combination doesn't exist, initialize it
         if (!acc[key]) {
           acc[key] = {
-            databaseName: database,
-            tableName: tableName,
+            database: item.database,
+            tableName: item.tableName,
             columns: [],
           };
         }
 
-        // Push the column into the array
-        acc[key].columns.push(columns);
-
+        acc[key].columns.push(item.column);
         return acc;
       }, {})
     );
-
-    setselected_Columns(groupedData);
   }
+  function Group_Odoo_Columns(data) {
+    // Initialize an empty object to store the grouped data
+    const groupedData = {};
 
-  function ClearTicked() {
-    setSelectedIndexes(new Set()); // Reset selected checkboxes
-    settickedboxes(0); // Reset counter
-    localStorage.removeItem("selectedIndexesColumns"); // Remove from storage
+    // Iterate over each object in the data array
+    data.forEach((item) => {
+      const { tableName, columnArray, rows } = item;
+
+      // If the table doesn't exist in the groupedData object, create it
+      if (!groupedData[tableName]) {
+        groupedData[tableName] = {
+          tableName: tableName, // Add the table key
+          columnArray: [], // Initialize columns array
+          rows: rows, // Rows are the same for all columns in the table
+        };
+      }
+
+      // Push the column to the corresponding table's columns list
+      groupedData[tableName].columnArray.push(columnArray);
+    });
+
+    // Now return the result without the table name at the top level
+    const result = Object.values(groupedData);
+
+    return result;
+  }
+  function ClickSelect() {
+    let selectedPostgresColumns = [];
+    let selectedOdooColumns = [];
+
+    [...selectedIndexes1].forEach((index) => {
+      const [beforeDash, afterDash] = index.split("-");
+      selectedPostgresColumns.push({
+        database: source_columns[beforeDash].database,
+        tableName: source_columns[beforeDash].tableName, // Fixed key
+        column: source_columns[beforeDash].columns[afterDash],
+      });
+    });
+
+    [...selectedIndexes2].forEach((index) => {
+      const [beforeDash, afterDash] = index.split("-");
+      selectedOdooColumns.push({
+        tableName: odoo_columns[beforeDash].table,
+        columnArray: odoo_columns[beforeDash].columns[afterDash].name,
+        rows: odoo_columns[beforeDash].rows,
+      });
+    });
+
+    const groupedData1 = Group_PSQL_Columns(selectedPostgresColumns); // Debug output
+    const groupedData2 = Group_Odoo_Columns(selectedOdooColumns); // Debug output
+    setselected_Columns(groupedData1);
+    setodoo_records(groupedData2);
   }
 
   useEffect(() => {
     if (!selected_Columns || selected_Columns.length === 0) return;
 
     const fetchRows = async () => {
+      navigate("/all-rows");
       try {
         const response = await fetch("http://localhost:5000/get-all-rows", {
           method: "POST",
@@ -107,7 +144,6 @@ export function Columns() {
         if (data.success) {
           console.log("All rows of selected columns recieved from backend");
           setsource_rows(data.rows);
-          navigate("/all-rows");
         } else {
           alert("Failed to send all rows request to backend");
         }
@@ -119,7 +155,7 @@ export function Columns() {
     fetchRows();
   }, [selected_Columns]);
 
-  return (
+  return dataArrived ? (
     <div className="w-5/6 h-5/6 bg-white border border-black">
       <div className="w-full h-1/4 flex items-center justify-center">
         <p className="text-2xl font-semibold ">Pipelines</p>
@@ -150,7 +186,14 @@ export function Columns() {
                       <div key={uniqueId}>
                         <div
                           className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
-                          onClick={() => toggleSelection(uniqueId)}
+                          onClick={() =>
+                            toggleSelection(
+                              uniqueId,
+                              setSelectedIndexes1,
+                              settickedboxes1,
+                              storage_item_1
+                            )
+                          }
                         >
                           <p className="w-full text-center text-sm">
                             {column_name}
@@ -158,7 +201,7 @@ export function Columns() {
                           <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
                             <div
                               className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
-                                selectedIndexes.has(uniqueId) ? "" : "hidden"
+                                selectedIndexes1.has(uniqueId) ? "" : "hidden"
                               }`}
                             ></div>
                           </div>
@@ -187,9 +230,20 @@ export function Columns() {
             </div>
             <button
               ref={ClearbuttonRef}
-              onClick={ClearTicked}
+              onClick={() => {
+                ClearTicked(
+                  setSelectedIndexes1,
+                  settickedboxes1,
+                  storage_item_1
+                );
+                ClearTicked(
+                  setSelectedIndexes2,
+                  settickedboxes2,
+                  storage_item_2
+                );
+              }}
               className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
-                tickedboxes > 0
+                (tickedboxes1 || tickedboxes2) > 0
                   ? "bg-blue-500 cursor-pointer"
                   : "bg-blue-300 cursor-auto"
               }`}
@@ -200,7 +254,7 @@ export function Columns() {
               onClick={ClickSelect}
               ref={SelectbuttonRef}
               className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
-                tickedboxes > 0
+                (tickedboxes1 || tickedboxes2) > 0
                   ? "bg-red-400 cursor-pointer"
                   : "bg-red-200 cursor-auto"
               }`}
@@ -211,34 +265,56 @@ export function Columns() {
         </div>
 
         <div className="flex flex-col w-1/2 overflow-x-auto">
-          <div className="grid grid-cols-7 gap-x-4 py-2 pr-4 border-y border-l border-black w-[100rem]">
-            {/* {dest_columns &&
-              dest_columns.length > 0 &&
-              Object.entries(dest_columns[0]).map(([key, value]) => (
-                <p key={key} className="py-1 text-center font-semibold text-sm">
-                  {key}
-                </p>
-              ))}
+          <div className="grid grid-cols-1 gap-x-4 py-2 pr-4 border-y border-r border-black">
+            <div>
+              <p className="text-center">Columns of Selected Odoo Tables</p>
+            </div>
           </div>
-          <div className="grid grid-cols-7 gap-x-4 py-2 pr-4 border-y border-r border-black w-[100rem]">
-            {dest_columns && dest_columns.length > 0 ? (
-              dest_columns.map((row, index) =>
-                Object.entries(row).map(([key, value]) => (
-                  <div key={key}>
-                    <p className="text-center text-sm">{value}</p>
-                  </div>
-                ))
-              )
-            ) : (
-              <div>
-                <p>No data available</p>
-              </div>
-            )} */}
+          <div className="h-[40vh] overflow-y-auto grid grid-cols-1 gap-x-4 py-2 border-y border-l border-black">
+            {odoo_columns?.length > 0 &&
+              odoo_columns.map((row, index) => (
+                <div key={index}>
+                  <p className="py-1 text-center font-semibold text-lg">
+                    {`Tablename: ${row.table}`}
+                  </p>
 
-            {/* Destination Pipeline Table */}
+                  {/* Check if row.columns exists before mapping over it */}
+                  {row.columns.map((column, idx) => {
+                    const uniqueId = `${index}-${idx}`; // Ensuring uniqueness
+                    return (
+                      <div key={uniqueId}>
+                        <div
+                          className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
+                          onClick={() =>
+                            toggleSelection(
+                              uniqueId,
+                              setSelectedIndexes2,
+                              settickedboxes2,
+                              storage_item_2
+                            )
+                          }
+                        >
+                          <p className="w-full text-center text-sm">
+                            {column.name}
+                          </p>
+                          <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
+                            <div
+                              className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
+                                selectedIndexes2.has(uniqueId) ? "" : "hidden"
+                              }`}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
           </div>
         </div>
       </div>
     </div>
+  ) : (
+    <LoaderPage />
   );
 }

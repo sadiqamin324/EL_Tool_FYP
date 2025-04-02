@@ -2,11 +2,24 @@ import { useEffect, useState, useRef, useContext } from "react";
 import { SourceTables, DestTables, Password } from "../components/Context.js";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Tables } from "./Tables.jsx";
+import { LoaderPage } from "../components/Loader.jsx";
 
 export function Pipeline() {
   const [SourceData, setSourceData] = useState(null);
+  const [dataArrived, setdataArrived] = useState(false);
   const [password, setpassword] = useState(null);
   const navigate = useNavigate(null);
+
+  useEffect(() => {
+    if (
+      // Check if both source_rows and odoo_records are valid and have data
+      SourceData &&
+      SourceData.length > 0
+    ) {
+      // Set dataArrived to true only when both arrays have data
+      setdataArrived(true);
+    }
+  }, [SourceData]); // Effect depends on both source_rows and odoo_records
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +42,7 @@ export function Pipeline() {
 
         if (data.success) {
           console.log("pipeline data recieved from backend");
-        
+
           setSourceData(data.source_data);
           // setDesinationData(data.destination_data);
         } else {
@@ -43,7 +56,7 @@ export function Pipeline() {
     fetchData();
   }, []);
 
-  return (
+  return dataArrived ? (
     <div className="w-[100rem] h-[98vh]">
       <div className="flex h-1/2 justify-around items-center">
         <SourceBox title="Source" data={SourceData} password={password} />
@@ -57,6 +70,8 @@ export function Pipeline() {
         </button>
       </div>
     </div>
+  ) : (
+    <LoaderPage />
   );
 }
 
@@ -79,9 +94,8 @@ function SourceBox({ title = "", data, password }) {
   } else {
     ShortTitle = title;
   }
-
   useEffect(() => {
-    const storedSelections = localStorage.getItem("selectedIndexesSources");
+    const storedSelections = sessionStorage.getItem("selectedIndexesSources");
     if (storedSelections) {
       const parsedSelections = JSON.parse(storedSelections);
       setSelectedIndexes(new Set(parsedSelections));
@@ -99,8 +113,8 @@ function SourceBox({ title = "", data, password }) {
       }
       settickedboxes(newSet.size);
 
-      // Save to localStorage
-      localStorage.setItem(
+      // Save to sessionStorage
+      sessionStorage.setItem(
         "selectedIndexesSources",
         JSON.stringify([...newSet])
       );
@@ -110,13 +124,13 @@ function SourceBox({ title = "", data, password }) {
   }
 
   function ClickSelect() {
+    navigate("/odoo-modules");
     let selectedNames = [];
 
     [...selectedIndexes].map((index) => {
       selectedNames.push(Object.values(data[index])[0]);
 
       setselectedSources(selectedNames);
-      navigate("/all-tables");
     });
   }
 

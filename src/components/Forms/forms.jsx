@@ -69,7 +69,7 @@ export default function Dropdown() {
               className="p-2 rounded-lg border-2 border-red-500 disabled:bg-red-200"
               onMouseOver={MouseOverRed}
               onMouseLeave={MouseLeaveRed}
-              onClick={InsertNewUser}
+              onClick={() => InsertNewUser(isSource)}
             >
               Save
             </button>

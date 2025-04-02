@@ -15,15 +15,6 @@ export default function PasswordBox() {
   const { dialogShown, setDialogShown } = useContext(DialogueContext);
   const { ishidden, setIshidden } = useContext(isHidden);
 
-  useEffect(() => {
-    if (!dialogShown.current) {
-      console.log("Initial state", dialogShown.current);
-      dialogShown.current = true;
-      console.log("Final state", dialogShown.current);
-    } else {
-      console.log("Now state", dialogShown.current);
-    }
-  }, []);
 
   async function HandleButton() {
     if (InputBox.current.value.trim() !== "") {

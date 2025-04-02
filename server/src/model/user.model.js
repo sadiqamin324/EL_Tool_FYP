@@ -27,6 +27,10 @@ export const Source_Table_Model = {
     allowNull: false,
     unique: true,
   },
+  user_name: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
   created_by: {
     type: DataTypes.STRING,
     allowNull: false,
