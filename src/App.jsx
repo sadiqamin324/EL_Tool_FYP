@@ -7,6 +7,7 @@ import { LoaderPage } from "./components/Loader.jsx";
 import SignUp from "./pages/Sign-up";
 import { Pipeline } from "./pages/Pipeline.jsx";
 import { Tables } from "./pages/Tables.jsx";
+import PasswordBox from "./pages/EnterPassword.jsx";
 import { Columns } from "./pages/Columns.jsx";
 import { OdooModules } from "./pages/OdooModules.jsx";
 import {
@@ -50,7 +51,8 @@ export default function App() {
                 >
                   <BrowserRouter>
                     <Routes>
-                      <Route path="/" element={<Home />} />
+                      <Route path="/" element={<PasswordBox />} />
+                      <Route path="/home" element={<Home />} />
                       <Route path="/SignUp" element={<SignUp />} />
                       <Route path="/SignIn" element={<SignIn />} />
                       <Route path="/dropdown" element={<DropdownForm />} />

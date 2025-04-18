@@ -15,6 +15,7 @@ export function toggleSelection(
     if (newSet.has(index)) {
       newSet.delete(index); // Uncheck
     } else {
+      newSet.clear();
       newSet.add(index); // Check
     }
     set_tick_box(newSet.size);

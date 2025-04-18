@@ -106,11 +106,14 @@ function SourceBox({ title = "", data, password }) {
   function toggleSelection(index) {
     setSelectedIndexes((prev) => {
       const newSet = new Set(prev);
+
       if (newSet.has(index)) {
         newSet.delete(index); // Uncheck
       } else {
+        newSet.clear();
         newSet.add(index); // Check
       }
+
       settickedboxes(newSet.size);
 
       // Save to sessionStorage
@@ -124,14 +127,22 @@ function SourceBox({ title = "", data, password }) {
   }
 
   function ClickSelect() {
-    navigate("/odoo-modules");
+    // navigate("/odoo-modules");
     let selectedNames = [];
 
     [...selectedIndexes].map((index) => {
-      selectedNames.push(Object.values(data[index])[0]);
+      selectedNames.push({
+        source_name: Object.values(data[index])[0],
+        source_type: Object.values(data[index])[1],
+      });
 
       setselectedSources(selectedNames);
     });
+    if (selectedNames[0].source_type == "Odoo") {
+      navigate("/odoo-modules");
+    } else if (selectedNames[0].source_type == "Postgres SQL") {
+      navigate("/all-tables");
+    }
   }
 
   useEffect(() => {
@@ -158,6 +169,7 @@ function SourceBox({ title = "", data, password }) {
           );
           if (title == "Source") {
             setsource_tables(data.tables);
+            console.log(data.tables);
           } else if (title == "Destination") {
             setdest_columns(data.columns);
           }
@@ -193,9 +205,9 @@ function SourceBox({ title = "", data, password }) {
                   {Object.values(row)[0]}
                 </p>
                 <div className="flex justify-end items-center">
-                  <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
+                  <div className="tickbox flex justify-center items-center w-5 h-5 rounded-full border border-green-700 bg-white mr-1">
                     <div
-                      className={`check w-full h-full bg-cover bg-green-400 bg-white-tick ${
+                      className={`check w-2 h-2 rounded-full bg-green-400${
                         selectedIndexes.has(index) ? "" : "hidden"
                       }`}
                     ></div>

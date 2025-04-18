@@ -106,9 +106,9 @@ export function OdooModules() {
               }
             >
               <p className="w-full text-center text-sm">{row.name}</p>
-              <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
+              <div className="tickbox flex justify-center items-center w-5 h-5 rounded-full border border-green-700 bg-white">
                 <div
-                  className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
+                  className={`check w-2 h-2 rounded-full bg-green-400 ${
                     selectedIndexes.has(index) ? "" : "hidden"
                   }`}
                 ></div>

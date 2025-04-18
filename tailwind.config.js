@@ -9,6 +9,10 @@ module.exports = {
         universe: "url('./src/assets/universe.jpg')",
         "down-arrow": "url('./src/assets/down-arrow.png')",
         "white-tick": "url('./src/assets/white-tick.png')",
+        "add": "url('./src/assets/Add.png')",
+        "edit": "url('./src/assets/Edit.png')",
+        "delete": "url('./src/assets/delete.png')",
+        "green-dot": "url('./src/assets/green-dot.png')",
       },
       colors: {
         "white-60": "rgba(255, 255, 255, 0.6)",

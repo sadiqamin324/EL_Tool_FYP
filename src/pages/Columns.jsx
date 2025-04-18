@@ -35,11 +35,15 @@ export function Columns() {
   const storage_item_2 = "selectedColumnsOdoo";
 
   useEffect(() => {
+    if (!source_columns && !odoo_columns) return;
+    console.log(source_columns);
+    console.log(odoo_columns);
+  }, [source_columns, odoo_columns]);
+  
+  useEffect(() => {
     if (
-      source_columns &&
-      source_columns.length &&
-      odoo_columns &&
-      odoo_columns.length
+      (source_columns && source_columns.length) ||
+      (odoo_columns && odoo_columns.length)
     ) {
       setdataArrived(true);
     }
@@ -162,64 +166,124 @@ export function Columns() {
       </div>
       <div className="w-full flex">
         {/* Source Pipeline Table */}
-        <div className="flex flex-col w-1/2 overflow-x-auto">
-          <div className="grid grid-cols-1 gap-x-4 py-2 pr-4 border-y border-r border-black">
-            <div>
-              <p className="text-center">Columns of Selected Source Tables</p>
+        {source_columns?.length > 0 ? (
+          <div className="flex flex-col w-1/2 overflow-x-auto">
+            <div className="grid grid-cols-1 gap-x-4 py-2 pr-4 border-y border-r border-black">
+              <div>
+                <p className="text-center">Columns of Selected Source Tables</p>
+              </div>
             </div>
-          </div>
-          <div className="h-[40vh] overflow-y-auto grid grid-cols-1 gap-x-4 py-2 border-y border-r border-black">
-            {source_columns && source_columns.length > 0 ? (
-              source_columns.map((element, index) => (
-                <div key={index}>
-                  <div className="flex justify-evenly">
-                    <p className="text-center text-lg font-bold">
-                      {`Database: ${element.database}`}
-                    </p>
-                    <p className="text-center text-lg font-bold">
-                      {`Tablename: ${element.tableName}`}
-                    </p>
-                  </div>
-                  {element.columns.map((column_name, idx) => {
-                    const uniqueId = `${index}-${idx}`; // Ensuring uniqueness
-                    return (
-                      <div key={uniqueId}>
-                        <div
-                          className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
-                          onClick={() =>
-                            toggleSelection(
-                              uniqueId,
-                              setSelectedIndexes1,
-                              settickedboxes1,
-                              storage_item_1
-                            )
-                          }
-                        >
-                          <p className="w-full text-center text-sm">
-                            {column_name}
-                          </p>
-                          <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
-                            <div
-                              className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
-                                selectedIndexes1.has(uniqueId) ? "" : "hidden"
-                              }`}
-                            ></div>
+            <div className="h-[40vh] overflow-y-auto grid grid-cols-1 gap-x-4 py-2 border-y border-r border-black">
+              {source_columns && source_columns.length > 0 ? (
+                source_columns.map((element, index) => (
+                  <div key={index}>
+                    <div className="flex justify-evenly">
+                      <p className="text-center text-lg font-bold">
+                        {`Database: ${element.database}`}
+                      </p>
+                      <p className="text-center text-lg font-bold">
+                        {`Tablename: ${element.tableName}`}
+                      </p>
+                    </div>
+                    {element.columns.map((column_name, idx) => {
+                      const uniqueId = `${index}-${idx}`; // Ensuring uniqueness
+                      return (
+                        <div key={uniqueId}>
+                          <div
+                            className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
+                            onClick={() =>
+                              toggleSelection(
+                                uniqueId,
+                                setSelectedIndexes1,
+                                settickedboxes1,
+                                storage_item_1
+                              )
+                            }
+                          >
+                            <p className="w-full text-center text-sm">
+                              {column_name}
+                            </p>
+                            <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
+                              <div
+                                className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
+                                  selectedIndexes1.has(uniqueId) ? "" : "hidden"
+                                }`}
+                              ></div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+                ))
+              ) : (
+                <div>
+                  <p>No data available</p>
                 </div>
-              ))
-            ) : (
-              <div>
-                <p>No data available</p>
-              </div>
-            )}
+              )}
 
-            {/* Destination Pipeline Table */}
+              {/* Destination Pipeline Table */}
+            </div>
           </div>
-          <div className="w-full flex h-[10vh]">
+        ) : (
+          <div className="flex flex-col w-1/2 overflow-x-auto">
+            <div className="grid grid-cols-1 gap-x-4 py-2 pr-4 border-y border-r border-black">
+              <div>
+                <p className="text-center">Columns of Selected Odoo Tables</p>
+              </div>
+            </div>
+            <div className="h-[40vh] overflow-y-auto grid grid-cols-1 gap-x-4 py-2 border-y border-l border-black">
+              {odoo_columns?.length > 0 &&
+                odoo_columns.map((row, index) => (
+                  <div key={index}>
+                    <p className="py-1 text-center font-semibold text-lg">
+                      {`Tablename: ${row.table}`}
+                    </p>
+
+                    {/* Check if row.columns exists before mapping over it */}
+                    {row.columns.map((column, idx) => {
+                      const uniqueId = `${index}-${idx}`; // Ensuring uniqueness
+                      return (
+                        <div key={uniqueId}>
+                          <div
+                            className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
+                            onClick={() =>
+                              toggleSelection(
+                                uniqueId,
+                                setSelectedIndexes2,
+                                settickedboxes2,
+                                storage_item_2
+                              )
+                            }
+                          >
+                            <p className="w-full text-center text-sm">
+                              {column.name}
+                            </p>
+                            <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
+                              <div
+                                className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
+                                  selectedIndexes2.has(uniqueId) ? "" : "hidden"
+                                }`}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  ) : (
+    <LoaderPage />
+  );
+}
+
+{
+  /* <div className="w-full flex h-[10vh]">
             <div className="w-2/3">
               <button
                 onClick={() => navigate(-1)}
@@ -261,60 +325,5 @@ export function Columns() {
             >
               Select
             </button>
-          </div>
-        </div>
-
-        <div className="flex flex-col w-1/2 overflow-x-auto">
-          <div className="grid grid-cols-1 gap-x-4 py-2 pr-4 border-y border-r border-black">
-            <div>
-              <p className="text-center">Columns of Selected Odoo Tables</p>
-            </div>
-          </div>
-          <div className="h-[40vh] overflow-y-auto grid grid-cols-1 gap-x-4 py-2 border-y border-l border-black">
-            {odoo_columns?.length > 0 &&
-              odoo_columns.map((row, index) => (
-                <div key={index}>
-                  <p className="py-1 text-center font-semibold text-lg">
-                    {`Tablename: ${row.table}`}
-                  </p>
-
-                  {/* Check if row.columns exists before mapping over it */}
-                  {row.columns.map((column, idx) => {
-                    const uniqueId = `${index}-${idx}`; // Ensuring uniqueness
-                    return (
-                      <div key={uniqueId}>
-                        <div
-                          className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
-                          onClick={() =>
-                            toggleSelection(
-                              uniqueId,
-                              setSelectedIndexes2,
-                              settickedboxes2,
-                              storage_item_2
-                            )
-                          }
-                        >
-                          <p className="w-full text-center text-sm">
-                            {column.name}
-                          </p>
-                          <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
-                            <div
-                              className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
-                                selectedIndexes2.has(uniqueId) ? "" : "hidden"
-                              }`}
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  ) : (
-    <LoaderPage />
-  );
+          </div> */
 }

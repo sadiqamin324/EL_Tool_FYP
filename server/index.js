@@ -88,7 +88,6 @@ app.get("/users", async (req, res) => {
 
 app.post("/validate-password", async (req, res) => {
   const { password } = req.body;
-  console.log(password);
 
   system_db = new Sequelize("postgres", "postgres", password, {
     host: "localhost", // Your DB host
@@ -292,7 +291,74 @@ app.post("/connect-Odoo", async (req, res) => {
     return Promise.reject(`❌ Unexpected error: ${error.message}`);
   }
 });
+app.post("/remove-article", async (req, res) => {
+  const { title, article } = req.body;
 
+  if (!title || !article || !article.id) {
+    return res.status(400).json({
+      success: false,
+      error: "Missing required parameters: title or article data",
+    });
+  }
+
+  try {
+    let Model;
+    let action = "removed";
+
+    // Define model based on title
+    switch (title) {
+      case "Source":
+        Model = system_db.define(title, Source_Table_Model.attributes, {
+          ...Source_Table_Model.options,
+          timestamps: true, // override or ensure timestamps are on
+        });
+
+        await Model.update(
+          { active_status: "inactive" },
+          { where: { id: article.id } }
+        );
+        action = "marked as inactive";
+        break;
+
+      case "Destination":
+        Model = system_db.define(title, Destination_Table_Model.attributes, {
+          ...Destination_Table_Model.options,
+          timestamps: true, // override or ensure timestamps are on
+        });
+
+        await Model.update(
+          { active_status: "inactive" },
+          { where: { id: article.id } }
+        );
+        break;
+
+      case "Pipeline":
+        return res.status(400).json({
+          success: false,
+          error: "Pipeline deletion not implemented",
+        });
+
+      default:
+        return res.status(400).json({
+          success: false,
+          error: "Invalid title parameter",
+        });
+    }
+
+    return res.json({
+      success: true,
+      message: `${title} row with id ${article.id} ${action} successfully`,
+      data: { id: article.id },
+    });
+  } catch (error) {
+    console.error(`Error removing ${title} article:`, error);
+    return res.status(500).json({
+      success: false,
+      error: `Failed to process ${title} removal`,
+      details: error.message,
+    });
+  }
+});
 // Test the database connectio
 app.post("/save-details", async (req, res) => {
   //All details accepted from the incoming request
@@ -316,8 +382,9 @@ app.post("/save-details", async (req, res) => {
 
   // Define the model dynamically
   if (modifier == "Source") {
-    User = system_db.define(modifier, Source_Table_Model, {
-      timestamps: true,
+    User = system_db.define(modifier, Source_Table_Model.attributes, {
+      ...Source_Table_Model.options,
+      timestamps: true, // override or ensure timestamps are on
     });
 
     // Test the database connection
@@ -330,15 +397,16 @@ app.post("/save-details", async (req, res) => {
       console.error("❌ Unable to connect to PostgreSQL:", error);
     }
   } else if (modifier == "Destination") {
-    User = system_db.define(modifier, Destination_Table_Model, {
-      timestamps: true,
+    User = system_db.define(modifier, Destination_Table_Model.attributes, {
+      ...Destination_Table_Model.options,
+      timestamps: true, // override or ensure timestamps are on
     });
 
     try {
       await system_db.authenticate();
       console.log("✅ Connected to PostgreSQL successfully!");
       await User.sync({ alter: true });
-      console.log("Source table is ready.");
+      console.log("Destination table is ready.");
     } catch (error) {
       console.error("❌ Unable to connect to PostgreSQL:", error);
     }
@@ -404,52 +472,19 @@ app.post("/data-flag", async (req, res) => {
   try {
     object.flag = req.body.flag;
 
-    if (object.flag !== 0 && object.flag != 1 && object.flag != 2) {
-      console.log(object.flag);
+    // Validate flag
+    if (object.flag !== 0 && object.flag !== 1 && object.flag !== 2) {
+      console.log("Invalid flag:", object.flag);
       return res.json({ success: false, message: "Invalid flag value" });
     }
-    console.log("Recieved flag", object.flag);
-    // Test the database connection
-    try {
-      const response = await fetch("http://localhost:5000/get-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
 
-      const data = await response.json();
-      console.log("Received data:", data);
+    console.log("Received flag:", object.flag);
 
-      if (object.flag == 0 || object.flag == 1) {
-        return res.json({
-          success: true,
-          message: "Recieved data flag for source-dropdown",
-          data: data,
-        });
-      } else if (object.flag == 2) {
-        return res.json({
-          success: true,
-          message: "Recieved data flag for pipeline",
-        });
-      }
-    } catch (error) {
-      console.error("❌ Unable to send request for data", error);
-      return res.status(500).json({ error: "Request failed" });
-    }
-  } catch (error) {
-    console.log("Error handling flag request", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
-  }
-});
-
-app.post("/get-data", async (req, res) => {
-  try {
-    sequelize = new Sequelize("postgres", "postgres", "safeeurrehman123", {
-      host: "localhost", // Your DB host
-      dialect: "postgres", // Specify PostgreSQL
-      logging: false, // Disable logging queries (set true for debugging)
-    });
-    await sequelize.authenticate();
+    await system_db.authenticate();
     console.log("✅ Connected to PostgreSQL successfully!");
+
+    // Set dynamic model config
+    let modifier;
 
     if (object.flag == 0) {
       modifier = "Source";
@@ -460,7 +495,6 @@ app.post("/get-data", async (req, res) => {
       fieldNames.name = "destination_name";
       fieldNames.type = "destination_type";
     }
-    console.log(object.flag);
     const dynamicFields = {
       [fieldNames.name]: {
         type: DataTypes.STRING,
@@ -483,31 +517,51 @@ app.post("/get-data", async (req, res) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+      active_status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "active",
+      },
     };
 
-    // ✅ Define model only once
-    const User = sequelize.define(modifier, dynamicFields, {
+    const User = system_db.define(modifier, dynamicFields, {
       timestamps: true,
     });
+
+    // Sync model (optional - depending on use case)
+    await User.sync();
 
     const rows = await User.findAll({
       attributes: [
         "id",
-        modifier.toLowerCase() + "_name",
-        modifier.toLowerCase() + "_type",
+        fieldNames.name,
+        fieldNames.type,
         "host",
-        "port_number",
+        "database_name",
         "active_status",
       ],
       where: {
-        active_status: "active", // Fetch only rows whfere active_status is 'active'
+        active_status: "active",
       },
     });
 
-    return res.json({ success: true, data: rows });
+    if (object.flag === 0 || object.flag === 1) {
+      return res.json({
+        success: true,
+        message: "Received data flag for source-destination",
+        data: rows, // FIX: send actual data from DB
+      });
+    } else if (object.flag === 2) {
+      return res.json({
+        success: true,
+        message: "Received data flag for pipeline",
+      });
+    }
   } catch (error) {
-    console.error("❌ Error fetching data:", error);
-    return res.status(500).json({ error: "Database query failed" });
+    console.error("❌ Error in /data-flag:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 });
 
@@ -518,8 +572,9 @@ app.post("/get-pipeline-data", async (req, res) => {
     let Destination;
 
     try {
-      Source = system_db.define("Source", Source_Table_Model, {
-        timestamps: true,
+      Source = system_db.define("Source", Source_Table_Model.attributes, {
+        ...Source_Table_Model.options,
+        timestamps: true, // override or ensure timestamps are on
       });
 
       await system_db.authenticate();
@@ -529,31 +584,32 @@ app.post("/get-pipeline-data", async (req, res) => {
     } catch (error) {
       console.error("❌ Unable to connect to PostgreSQL:", error);
     }
-
     try {
-      Destination = system_db.define("Destination", Destination_Table_Model, {
-        timestamps: true,
-      });
+      Destination = system_db.define(
+        "Destination",
+        Destination_Table_Model.attributes,
+        {
+          ...Destination_Table_Model.options,
+          timestamps: true, // override or ensure timestamps are on
+        }
+      );
 
       await system_db.authenticate();
       console.log("✅ Connected to PostgreSQL successfully!");
       await Destination.sync({ alter: true });
-      console.log("Destination table is ready.");
+      console.log("Source table is ready.");
     } catch (error) {
       console.error("❌ Unable to connect to PostgreSQL:", error);
     }
-
     // Fetch active source rows
     const source_rows = await Source.findAll({
-      attributes: ["source_name"],
+      attributes: ["source_name", "source_type"],
       where: {
         active_status: "active",
       },
     });
-
-    // Fetch active destination rows
     const destination_rows = await Destination.findAll({
-      attributes: ["destination_name", "database_name"],
+      attributes: ["destination_name"],
       where: {
         active_status: "active",
       },
@@ -578,13 +634,17 @@ app.post("/get-pipeline-data", async (req, res) => {
 
 app.post("/get-odoo-data", async (req, res) => {
   const { selectedmodules } = req.body;
-  let Odoo_Tables = [];
 
   try {
     // Define the Source model from system_db
-    const UserModel = system_db.define("Source", Source_Table_Model, {
-      timestamps: true,
-    });
+    const UserModel = system_db.define(
+      "Source",
+      Source_Table_Model.attributes,
+      {
+        ...Source_Table_Model.options,
+        timestamps: true, // override or ensure timestamps are on
+      }
+    );
 
     // Fetch matching database configuration from PostgreSQL
     const rows = await UserModel.findAll({
@@ -649,24 +709,20 @@ app.post("/get-all-tables", async (req, res) => {
   const All_Postgre_Tables = [];
   let All_Odoo_Modules = [];
 
-  let user;
   try {
     // Define the models dynamically
-    if (title == "Source") {
-      user = system_db.define(title, Source_Table_Model, {
-        timestamps: true,
-      });
-    } else if (title == "Destination") {
-      user = system_db.define(title, Destination_Table_Model, {
-        timestamps: true,
-      });
-    }
+
+    const user = system_db.define(title, Source_Table_Model.attributes, {
+      ...Source_Table_Model.options,
+      timestamps: true, // override or ensure timestamps are on
+    });
 
     const rows = await user.findAll({
       where: {
         [`${title.toLowerCase()}_name`]: {
-          [Op.in]: selectedSources, // Filters rows where source_name is in the array
+          [Op.eq]: selectedSources[0].source_name, // Match source_name
         },
+        active_status: "active", // Only fetch active records
       },
       attributes: [
         "database_name",
@@ -676,16 +732,17 @@ app.post("/get-all-tables", async (req, res) => {
         "port_number",
         "password",
       ],
-      raw: true, // Only fetch database_name column
+      raw: true,
     });
 
     // Send the response with data
     for (let i = 0; i < rows.length; i++) {
       if (rows[i].source_type == "Postgres SQL") {
+        const { encryptedData, iv } = JSON.parse(rows[i].password);
         const result = await getAllTables(
           rows[i].database_name,
-          "postgres",
-          fields.password,
+          rows[i].user_name,
+          decrypt(encryptedData, iv),
           rows[i].host
         );
         All_Postgre_Tables.push(result);
@@ -764,7 +821,6 @@ app.post("/get-all-rows", async (req, res) => {
   try {
     // Send the response with data
     for (let i = 0; i < selected_Columns.length; i++) {
-      // console.log("database name", selected_Columns[i].databaseName);
       const result = await getAllRows(
         selected_Columns[i].database,
         Global_Password,
@@ -889,6 +945,45 @@ app.post("/dump-data", async (req, res) => {
   }
 });
 
+app.post("/insert-changes", async (req, res) => {
+  const { object } = req.body;
+  const { title } = req.body;
+
+  //All edited columns with their data
+  const updateData = {};
+  object.editedValues.forEach((change) => {
+    updateData[change.col] = change.editedValue;
+  });
+
+  let User;
+  if (title == "Source") {
+    User = system_db.define(title, Source_Table_Model, {
+      timestamps: true,
+    });
+  } else if (title == "Destination") {
+    User = system_db.define(title, Destination_Table_Model, {
+      timestamps: true,
+    });
+  } else if (title == "Pipeline") {
+    return res.json({
+      success: true,
+      message: "work done",
+    });
+  }
+
+  await User.update(updateData, {
+    where: {
+      id: object.changed_row_id,
+    },
+  });
+
+  console.log("Changes saved successfully");
+
+  return res.json({
+    success: true,
+    message: "work done",
+  });
+});
 // Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
