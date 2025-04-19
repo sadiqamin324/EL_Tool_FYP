@@ -8,18 +8,12 @@ import {
 } from "../components/Context";
 import { useContext, useRef, useState, useEffect } from "react";
 import { data, useNavigate } from "react-router-dom";
-import {
-  toggleSelection,
-  ClearTicked,
-  Track_ticked,
-} from "../components/Functions";
+import { ClearTicked, Track_ticked } from "../components/Functions";
 import { LoaderPage } from "../components/Loader";
 
 export function Columns() {
-  const [tickedboxes1, settickedboxes1] = useState();
-  const [tickedboxes2, settickedboxes2] = useState();
-  const [selectedIndexes1, setSelectedIndexes1] = useState(new Set());
-  const [selectedIndexes2, setSelectedIndexes2] = useState(new Set());
+  const [tickedboxes, settickedboxes] = useState();
+  const [selectedIndexes, setSelectedIndexes] = useState(new Set());
   const { dest_columns } = useContext(DestTables);
   const [selected_Columns, setselected_Columns] = useState(null);
   const [dataArrived, setdataArrived] = useState(false);
@@ -31,15 +25,27 @@ export function Columns() {
   const { odoo_columns, setodoo_records } = useContext(Odoo_Data);
 
   const navigate = useNavigate();
-  const storage_item_1 = "selectedColumnsPostgres";
-  const storage_item_2 = "selectedColumnsOdoo";
+  const storage_item = "selectedColumns";
 
-  useEffect(() => {
-    if (!source_columns && !odoo_columns) return;
-    console.log(source_columns);
-    console.log(odoo_columns);
-  }, [source_columns, odoo_columns]);
-  
+  function toggleSelection(index) {
+    setSelectedIndexes((prev) => {
+      const newSet = new Set(prev);
+
+      if (newSet.has(index)) {
+        newSet.delete(index); // Uncheck
+      } else {
+        newSet.add(index); // Check
+      }
+
+      settickedboxes(newSet.size);
+
+      // Save to sessionStorage
+      sessionStorage.setItem(storage_item, JSON.stringify([...newSet]));
+
+      return newSet;
+    });
+  }
+
   useEffect(() => {
     if (
       (source_columns && source_columns.length) ||
@@ -50,8 +56,7 @@ export function Columns() {
   }, [source_columns, odoo_columns]);
 
   useEffect(() => {
-    Track_ticked(setSelectedIndexes1, settickedboxes1, storage_item_1);
-    Track_ticked(setSelectedIndexes2, settickedboxes2, storage_item_2);
+    Track_ticked(setSelectedIndexes, settickedboxes, storage_item);
   }, []);
 
   function Group_PSQL_Columns(data) {
@@ -160,14 +165,14 @@ export function Columns() {
   }, [selected_Columns]);
 
   return dataArrived ? (
-    <div className="w-5/6 h-5/6 bg-white border border-black">
+    <div className="w-1/2 h-5/6 bg-white border border-black">
       <div className="w-full h-1/4 flex items-center justify-center">
-        <p className="text-2xl font-semibold ">Pipelines</p>
+        <p className="text-2xl font-semibold ">Pipeline</p>
       </div>
       <div className="w-full flex">
         {/* Source Pipeline Table */}
         {source_columns?.length > 0 ? (
-          <div className="flex flex-col w-1/2 overflow-x-auto">
+          <div className="flex flex-col w-full overflow-x-auto">
             <div className="grid grid-cols-1 gap-x-4 py-2 pr-4 border-y border-r border-black">
               <div>
                 <p className="text-center">Columns of Selected Source Tables</p>
@@ -191,22 +196,15 @@ export function Columns() {
                         <div key={uniqueId}>
                           <div
                             className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
-                            onClick={() =>
-                              toggleSelection(
-                                uniqueId,
-                                setSelectedIndexes1,
-                                settickedboxes1,
-                                storage_item_1
-                              )
-                            }
+                            onClick={() => toggleSelection(uniqueId)}
                           >
                             <p className="w-full text-center text-sm">
                               {column_name}
                             </p>
-                            <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
+                            <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white">
                               <div
-                                className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
-                                  selectedIndexes1.has(uniqueId) ? "" : "hidden"
+                                className={`check w-full h-full bg-white-tick bg-cover bg-green-400 ${
+                                  selectedIndexes.has(uniqueId) ? "" : "hidden"
                                 }`}
                               ></div>
                             </div>
@@ -226,7 +224,7 @@ export function Columns() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col w-1/2 overflow-x-auto">
+          <div className="flex flex-col w-full overflow-x-auto">
             <div className="grid grid-cols-1 gap-x-4 py-2 pr-4 border-y border-r border-black">
               <div>
                 <p className="text-center">Columns of Selected Odoo Tables</p>
@@ -247,22 +245,15 @@ export function Columns() {
                         <div key={uniqueId}>
                           <div
                             className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
-                            onClick={() =>
-                              toggleSelection(
-                                uniqueId,
-                                setSelectedIndexes2,
-                                settickedboxes2,
-                                storage_item_2
-                              )
-                            }
+                            onClick={() => toggleSelection(uniqueId)}
                           >
                             <p className="w-full text-center text-sm">
                               {column.name}
                             </p>
-                            <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">
+                            <div className="tickbox flex justify-center items-center w-5 h-5 border border-green-700 bg-white">
                               <div
-                                className={`check w-full h-full bg-cover bg-white-tick bg-green-400 ${
-                                  selectedIndexes2.has(uniqueId) ? "" : "hidden"
+                                className={`check w-full h-full bg-white-tick bg-cover bg-green-400  ${
+                                  selectedIndexes.has(uniqueId) ? "" : "hidden"
                                 }`}
                               ></div>
                             </div>
@@ -276,54 +267,43 @@ export function Columns() {
           </div>
         )}
       </div>
+      <div className="w-full flex h-[10vh]">
+        <div className="w-2/3">
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-blue-500 self-start w-1/4 h-1/2 my-4 mx-2 text-white rounded-md"
+          >
+            Back
+          </button>
+        </div>
+        <button
+          ref={ClearbuttonRef}
+          onClick={() => {
+            ClearTicked(setSelectedIndexes, settickedboxes, storage_item);
+          }}
+          className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+            tickedboxes > 0
+              ? "bg-blue-500 cursor-pointer"
+              : "bg-blue-300 cursor-auto"
+          }`}
+        >
+          Clear All
+        </button>
+        <button
+          onClick={ClickSelect}
+          ref={SelectbuttonRef}
+          className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+            tickedboxes > 0
+              ? "bg-red-400 cursor-pointer"
+              : "bg-red-200 cursor-auto"
+          }`}
+        >
+          Select
+        </button>
+      </div>
+      ;
     </div>
   ) : (
     <LoaderPage />
   );
-}
-
-{
-  /* <div className="w-full flex h-[10vh]">
-            <div className="w-2/3">
-              <button
-                onClick={() => navigate(-1)}
-                className="bg-blue-500 self-start w-1/4 h-1/2 my-4 mx-2 text-white rounded-md"
-              >
-                Back
-              </button>
-            </div>
-            <button
-              ref={ClearbuttonRef}
-              onClick={() => {
-                ClearTicked(
-                  setSelectedIndexes1,
-                  settickedboxes1,
-                  storage_item_1
-                );
-                ClearTicked(
-                  setSelectedIndexes2,
-                  settickedboxes2,
-                  storage_item_2
-                );
-              }}
-              className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
-                (tickedboxes1 || tickedboxes2) > 0
-                  ? "bg-blue-500 cursor-pointer"
-                  : "bg-blue-300 cursor-auto"
-              }`}
-            >
-              Clear All
-            </button>
-            <button
-              onClick={ClickSelect}
-              ref={SelectbuttonRef}
-              className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
-                (tickedboxes1 || tickedboxes2) > 0
-                  ? "bg-red-400 cursor-pointer"
-                  : "bg-red-200 cursor-auto"
-              }`}
-            >
-              Select
-            </button>
-          </div> */
 }

@@ -49,6 +49,7 @@ export function Tables() {
   }, []);
 
   async function fetchColumns() {
+    console.log();
     try {
       const response = await fetch("http://localhost:5000/get-all-columns", {
         method: "POST",
@@ -66,6 +67,7 @@ export function Tables() {
       if (data.success) {
         console.log("All columns of selected tables recieved from backend");
         setsource_columns(data.columns);
+        console.log("hehe", data.columns);
       } else {
         alert("Failed to send All columns request to backend");
       }
@@ -90,7 +92,6 @@ export function Tables() {
           tablename:
             source_tables.postgres_tables[beforeDash].tables[afterDash],
         });
-        console.log("Hint", Postgres_columns);
         setselectedTables(Postgres_columns);
       } else if (odoo_data && odoo_data.length > 0)
         Odoo_columns.push({
@@ -103,17 +104,11 @@ export function Tables() {
     });
   }
   useEffect(() => {
-    if (
-      !selectedTables ||
-      selectedTables.length === 0 ||
-      !odoo_columns ||
-      odoo_columns.length === 0
-    ) {
+    if (!selectedTables || selectedTables.length === 0) {
       return;
     }
-
     fetchColumns();
-  }, [selectedTables, odoo_columns]);
+  }, [selectedTables]);
 
   useEffect(() => {
     if (!SelectbuttonRef.current || !ClearbuttonRef.current) return; // Ensure button exists before modifying
