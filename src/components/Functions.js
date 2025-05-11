@@ -118,34 +118,44 @@ export function compareRecords(array1, array2, keyFields) {
     return obj;
   };
 
-  // Improved deep comparison with robust date normalization
+  // Deep comparison with normalized UTC date handling
   const deepEqual = (val1, val2) => {
-    // Handle null/undefined cases
+    // Handle null/undefined
     if (val1 == null || val2 == null) {
       return val1 === val2;
     }
 
-    // Normalize and compare Date values
+    // Identify if either is a date or date-like string
     const isDateLike = (v) =>
       v instanceof Date ||
       (typeof v === 'string' &&
         /^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}:\d{2})/.test(v));
 
     if (isDateLike(val1) && isDateLike(val2)) {
-      const d1 = new Date(val1);
-      const d2 = new Date(val2);
+      const normalizeDate = (v) => {
+        if (typeof v === 'string') {
+          // Convert 'YYYY-MM-DD HH:mm:ss' -> 'YYYY-MM-DDTHH:mm:ssZ'
+          const iso = v.includes(' ') ? v.replace(' ', 'T') + 'Z' : v;
+          return new Date(iso);
+        }
+        return new Date(v);
+      };
+
+      const d1 = normalizeDate(val1);
+      const d2 = normalizeDate(val2);
+
       if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
-        return d1.toISOString() === d2.toISOString();
+        return d1.getTime() === d2.getTime(); // Compare as timestamps
       }
     }
 
-    // Handle array comparisons
+    // Array comparison
     if (Array.isArray(val1) && Array.isArray(val2)) {
       if (val1.length !== val2.length) return false;
       return val1.every((item, i) => deepEqual(item, val2[i]));
     }
 
-    // Handle object comparisons
+    // Object comparison
     if (typeof val1 === 'object' && typeof val2 === 'object') {
       const keys1 = Object.keys(val1);
       const keys2 = Object.keys(val2);
@@ -153,7 +163,7 @@ export function compareRecords(array1, array2, keyFields) {
       return keys1.every(key => deepEqual(val1[key], val2[key]));
     }
 
-    // Fallback strict comparison
+    // Fallback strict equality
     return val1 === val2;
   };
 

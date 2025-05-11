@@ -96,7 +96,7 @@ export default function Dropdown() {
       </div>
       <div className="w-[26%] flex justify-end">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/home")}
           className="bg-blue-500 w-1/3 h-3/4 my-4 mx-2 text-white rounded-lg"
         >
           Back
