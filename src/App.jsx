@@ -57,9 +57,6 @@ export default function App() {
                       <Route path="/SignIn" element={<SignIn />} />
                       <Route path="/dropdown" element={<DropdownForm />} />
                       <Route path="/pipeline" element={<Pipeline />} />
-                      <Route path="/odoo-modules" element={<OdooModules />} />
-                      <Route path="/all-tables" element={<Tables />} />
-                      <Route path="/all-columns" element={<Columns />} />
                       <Route path="/all-rows" element={<Rows />} />
                       <Route path="/loader" element={<LoaderPage />} />
                     </Routes>

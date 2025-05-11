@@ -14,10 +14,8 @@ export function Rows() {
   useEffect(() => {
     if (
       // Check if both source_rows and odoo_records are valid and have data
-      source_rows &&
-      source_rows.length > 0 &&
-      odoo_records &&
-      odoo_records.length > 0
+      (source_rows && source_rows.length > 0) ||
+      (odoo_records && odoo_records.length > 0)
     ) {
       // Set dataArrived to true only when both arrays have data
       setdataArrived(true);
@@ -37,71 +35,138 @@ export function Rows() {
         className={`${isSave ? "blur-md" : "blur-0"} h-[70vh] overflow-auto`}
       >
         <div className="flex justify-evenly">
-          <div className="flex flex-col border-r pr-48 border-black">
-            <div className="pt-10 pb-4">
-              <h1 className="text-center text-3xl ">
-                Selected Postgres Tables
-              </h1>
-            </div>
-            {source_rows && source_rows?.length > 0 ? (
-              source_rows.map((element, index) => (
-                <div
-                  key={index}
-                  className="flex items-between mb-8 flex-col w-[30rem] h-[70vh] pr-16 border-r-2 py-8 overflow-auto custom-scrollbar"
-                >
-                  {/* Database and Table Name */}
-                  <div className="flex justify-center my-2">
-                    <p className="text-lg mx-2">
-                      {`Database: `}
-                      <a className="font-bold text-center">
-                        {element.database}
-                      </a>
-                    </p>
-                    <p className="text-lg mx-2">
-                      {`Table: `}
-                      <a className="font-bold text-center">
-                        {element.tableName}
-                      </a>
-                    </p>
-                  </div>
-
-                  {/* Column Headers */}
+          {source_rows?.length > 0 ? (
+            <div className="flex flex-col">
+              <div className="pt-10 pb-4">
+                <h1 className="text-center text-3xl ">
+                  Selected Postgres Tables
+                </h1>
+              </div>
+              {source_rows && source_rows?.length > 0 ? (
+                source_rows.slice(0,49).map((element, index) => (
                   <div
-                    className="grid w-max gap-x-8 py-2 px-4 border bg-gray-200 rounded-t-lg"
-                    style={{
-                      gridTemplateColumns: `repeat(${element.columnArray.length},minmax(50px,100px))`,
-                    }}
+                    key={index}
+                    className="flex items-between mb-8 flex-col w-[30rem] h-max py-8"
                   >
-                    {element?.columnArray?.length > 0 ? (
-                      element.columnArray.map((column, idx) => (
+                    {/* Database and Table Name */}
+                    <div className="flex justify-center my-2">
+                      <p className="text-lg mx-2">
+                        {`Database: `}
+                        <a className="font-bold text-center">
+                          {element.database}
+                        </a>
+                      </p>
+                      <p className="text-lg mx-2">
+                        {`Table: `}
+                        <a className="font-bold text-center">
+                          {element.tableName}
+                        </a>
+                      </p>
+                    </div>
+
+                    {/* Column Headers */}
+                    <div
+                      className="grid w-max gap-x-8 py-2 px-4 border bg-gray-200 rounded-t-lg"
+                      style={{
+                        gridTemplateColumns: `repeat(${element.columnArray.length},minmax(50px,100px))`,
+                      }}
+                    >
+                      {element?.columnArray?.length > 0 ? (
+                        element.columnArray.map((column, idx) => (
+                          <div key={idx}>
+                            <p className="font-semibold text-center text-sm">
+                              {column}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <div>
+                          <p className="font-semibold text-center text-sm">
+                            No columns available
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Rows */}
+                    <div className="flex flex-col">
+                      {element?.rows?.length > 0 &&
+                      element?.columnArray?.length > 0 ? (
+                        element.rows.slice(0, 50).map((row, rowIndex) => (
+                          <div
+                            key={rowIndex}
+                            className="grid gap-x-8 w-max border py-2 px-4"
+                            style={{
+                              gridTemplateColumns: `repeat(${element.columnArray.length}, minmax(50px, 100px))`,
+                            }}
+                          >
+                            {element.columnArray.map((col, colIndex) => (
+                              <p
+                                key={colIndex}
+                                className="text-center text-sm break-words"
+                              >
+                                {JSON.stringify(row[col])}
+                              </p>
+                            ))}
+                          </div>
+                        ))
+                      ) : (
+                        <div>
+                          <p className="font-semibold text-center text-sm">
+                            No data available
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div>No data available</div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <div className="pt-10 pb-4">
+                <h1 className="text-center text-3xl ">Selected Odoo Tables</h1>
+              </div>
+              {odoo_records && odoo_records?.length > 0 ? (
+                odoo_records.map((object, index) => (
+                  <div
+                    key={index}
+                    className="flex items-between mb-8 flex-col w-[30rem] h-[70vh] overflow-auto pr-16 py-8 custom-scrollbar"
+                  >
+                    <div className="flex justify-center my-2">
+                      <p className="text-lg mx-2">
+                        {`Table: `}
+                        <a className="font-bold">{object.tableName}</a>
+                      </p>
+                    </div>
+
+                    <div
+                      className="grid w-max gap-x-8 py-2 px-4 border bg-gray-200 rounded-t-lg"
+                      style={{
+                        gridTemplateColumns: `repeat(${object.columnArray.length},minmax(75px, 150px))`,
+                      }}
+                    >
+                      {object.columnArray.map((column, idx) => (
                         <div key={idx}>
                           <p className="font-semibold text-center text-sm">
                             {column}
                           </p>
                         </div>
-                      ))
-                    ) : (
-                      <div>
-                        <p className="font-semibold text-center text-sm">
-                          No columns available
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                      ))}
+                    </div>
 
-                  {/* Rows */}
-                  <div className="flex flex-col">
-                    {element?.rows?.length > 0 &&
-                    element?.columnArray?.length > 0 ? (
-                      element.rows.slice(0, 50).map((row, rowIndex) => (
+                    <div className="flex flex-col">
+                      {object.rows.slice(0, 50).map((row, rowIndex) => (
                         <div
                           key={rowIndex}
                           className="grid gap-x-8 w-max border py-2 px-4"
                           style={{
-                            gridTemplateColumns: `repeat(${element.columnArray.length}, minmax(50px, 100px))`,
+                            gridTemplateColumns: `repeat(${object.columnArray.length},minmax(75px, 150px))`,
                           }}
                         >
-                          {element.columnArray.map((col, colIndex) => (
+                          {object.columnArray.map((col, colIndex) => (
                             <p
                               key={colIndex}
                               className="text-center text-sm break-words"
@@ -110,80 +175,15 @@ export function Rows() {
                             </p>
                           ))}
                         </div>
-                      ))
-                    ) : (
-                      <div>
-                        <p className="font-semibold text-center text-sm">
-                          No data available
-                        </p>
-                      </div>
-                    )}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <div>No data available</div>
-            )}
-          </div>
-          <hr className="w-[.5px] bg-black" />
-          <div className="flex flex-col">
-            <div className="pt-10 pb-4">
-              <h1 className="text-center text-3xl ">Selected Odoo Tables</h1>
+                ))
+              ) : (
+                <div>No data available</div>
+              )}
             </div>
-            {odoo_records && odoo_records?.length > 0 ? (
-              odoo_records.map((object, index) => (
-                <div
-                  key={index}
-                  className="flex items-between mb-8 flex-col w-[30rem] h-[70vh] overflow-auto pr-16 py-8 custom-scrollbar"
-                >
-                  <div className="flex justify-center my-2">
-                    <p className="text-lg mx-2">
-                      {`Table: `}
-                      <a className="font-bold">{object.tableName}</a>
-                    </p>
-                  </div>
-
-                  <div
-                    className="grid w-max gap-x-8 py-2 px-4 border bg-gray-200 rounded-t-lg"
-                    style={{
-                      gridTemplateColumns: `repeat(${object.columnArray.length},minmax(75px, 150px))`,
-                    }}
-                  >
-                    {object.columnArray.map((column, idx) => (
-                      <div key={idx}>
-                        <p className="font-semibold text-center text-sm">
-                          {column}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col">
-                    {object.rows.slice(0, 50).map((row, rowIndex) => (
-                      <div
-                        key={rowIndex}
-                        className="grid gap-x-8 w-max border py-2 px-4"
-                        style={{
-                          gridTemplateColumns: `repeat(${object.columnArray.length},minmax(75px, 150px))`,
-                        }}
-                      >
-                        {object.columnArray.map((col, colIndex) => (
-                          <p
-                            key={colIndex}
-                            className="text-center text-sm break-words"
-                          >
-                            {JSON.stringify(row[col])}
-                          </p>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div>No data available</div>
-            )}
-          </div>
+          )}
         </div>
       </div>
       <div className="w-1/2">
@@ -250,15 +250,6 @@ function DialogueBox({
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const storedSelections = localStorage.getItem("selectedIndexesDestination");
-    if (storedSelections) {
-      const parsedSelections = JSON.parse(storedSelections);
-      setSelectedIndexes(new Set(parsedSelections));
-      settickedboxes(parsedSelections.length); // Ensure buttons update
-    }
-  }, []);
-
   function toggleSelection(index) {
     setSelectedIndexes((prev) => {
       const newSet = new Set(prev);
@@ -268,12 +259,6 @@ function DialogueBox({
         newSet.add(index); // Check
       }
       settickedboxes(newSet.size);
-
-      // Save to localStorage
-      localStorage.setItem(
-        "selectedIndexesDestination",
-        JSON.stringify([...newSet])
-      );
 
       return newSet;
     });
@@ -316,7 +301,6 @@ function DialogueBox({
   function ClearTicked() {
     setSelectedIndexes(new Set()); // Reset selected checkboxes
     settickedboxes(0); // Reset counter
-    localStorage.removeItem("selectedIndexesDestinations"); // Remove from storage
   }
 
   return (

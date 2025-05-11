@@ -1,15 +1,9 @@
-export function ClearTicked(set_Index, set_tick_box, session_storage_item) {
+export function ClearTicked(set_Index, set_tick_box) {
   set_Index(new Set()); // Reset selected checkboxes
   set_tick_box(0); // Reset counter
-  sessionStorage.removeItem(session_storage_item); // Remove from storage
 }
 
-export function toggleSelection(
-  index,
-  set_Index,
-  set_tick_box,
-  session_storage_item
-) {
+export function toggleSelection(index, set_Index, set_tick_box) {
   set_Index((prev) => {
     const newSet = new Set(prev);
     if (newSet.has(index)) {
@@ -20,21 +14,8 @@ export function toggleSelection(
     }
     set_tick_box(newSet.size);
 
-    // Save to sessionStorage
-    sessionStorage.setItem(session_storage_item, JSON.stringify([...newSet]));
-
     return newSet;
   });
-}
-
-export function Track_ticked(set_Index, set_tick_box, session_storage_item) {
-  const storedSelections = sessionStorage.getItem(session_storage_item);
-
-  if (storedSelections) {
-    const parsedSelections = JSON.parse(storedSelections);
-    set_Index(new Set(parsedSelections));
-    set_tick_box(parsedSelections.length); // Ensure buttons update
-  }
 }
 
 const errorMessages = {
@@ -49,6 +30,8 @@ const errorMessages = {
   504: "Gateway Timeout - The server took too long to respond.",
   // Add other status codes as necessary
 };
+
+
 
 // Centralized error handler function
 export function handleError(error) {
@@ -67,4 +50,153 @@ export function handleError(error) {
     alert("There was an error setting up the request.");
     console.error("Error:", error.message);
   }
+}
+
+// export function compareRecords(array1, array2, keyFields) {
+//   const getKey = (record) => keyFields.map(k => record[k]).join('|');
+//   const getPrimaryKeyObject = (record) => {
+//     const obj = {};
+//     for (const k of keyFields) {
+//       obj[k] = record[k];
+//     }
+//     return obj;
+//   };
+
+//   const map1 = new Map(array1.map(record => [getKey(record), record]));
+//   const map2 = new Map(array2.map(record => [getKey(record), record]));
+
+//   const mismatches = [];
+
+//   for (const [key, record1] of map1.entries()) {
+//     const record2 = map2.get(key);
+//     if (!record2) continue;
+
+//     const keys = new Set([
+//       ...Object.keys(record1).filter(k => !keyFields.includes(k)),
+//       ...Object.keys(record2).filter(k => !keyFields.includes(k)),
+//     ]);
+
+//     let isDifferent = false;
+//     for (const k of keys) {
+//       const val1 = record1[k];
+//       const val2 = record2[k];
+
+//       const isDate1 = val1 instanceof Date;
+//       const isDate2 = val2 instanceof Date;
+
+//       if (isDate1 && isDate2) {
+//         if (val1.getTime() !== val2.getTime()) {
+//           isDifferent = true;
+//           break;
+//         }
+//       } else if (val1 !== val2) {
+//         isDifferent = true;
+//         break;
+//       }
+//     }
+
+//     if (isDifferent) {
+//       mismatches.push({
+//         primaryKeys: getPrimaryKeyObject(record1),
+//         record1,
+//         record2
+//       });
+//     }
+//   }
+
+//   return mismatches;
+// }
+
+export function compareRecords(array1, array2, keyFields) {
+  const getKey = (record) => keyFields.map(k => record[k]).join('|');
+
+  const getPrimaryKeyObject = (record) => {
+    const obj = {};
+    for (const k of keyFields) {
+      obj[k] = record[k];
+    }
+    return obj;
+  };
+
+  // Improved deep comparison with robust date normalization
+  const deepEqual = (val1, val2) => {
+    // Handle null/undefined cases
+    if (val1 == null || val2 == null) {
+      return val1 === val2;
+    }
+
+    // Normalize and compare Date values
+    const isDateLike = (v) =>
+      v instanceof Date ||
+      (typeof v === 'string' &&
+        /^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}:\d{2})/.test(v));
+
+    if (isDateLike(val1) && isDateLike(val2)) {
+      const d1 = new Date(val1);
+      const d2 = new Date(val2);
+      if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
+        return d1.toISOString() === d2.toISOString();
+      }
+    }
+
+    // Handle array comparisons
+    if (Array.isArray(val1) && Array.isArray(val2)) {
+      if (val1.length !== val2.length) return false;
+      return val1.every((item, i) => deepEqual(item, val2[i]));
+    }
+
+    // Handle object comparisons
+    if (typeof val1 === 'object' && typeof val2 === 'object') {
+      const keys1 = Object.keys(val1);
+      const keys2 = Object.keys(val2);
+      if (keys1.length !== keys2.length) return false;
+      return keys1.every(key => deepEqual(val1[key], val2[key]));
+    }
+
+    // Fallback strict comparison
+    return val1 === val2;
+  };
+
+  const map1 = new Map(array1.map(record => [getKey(record), record]));
+  const map2 = new Map(array2.map(record => [getKey(record), record]));
+
+  const mismatches = [];
+
+  for (const [key, record1] of map1.entries()) {
+    const record2 = map2.get(key);
+    if (!record2) continue;
+
+    const keys = new Set([
+      ...Object.keys(record1).filter(k => !keyFields.includes(k)),
+      ...Object.keys(record2).filter(k => !keyFields.includes(k)),
+    ]);
+
+    const differences = {};
+    const differentFields = [];
+
+    for (const k of keys) {
+      const val1 = record1[k];
+      const val2 = record2[k];
+
+      if (!deepEqual(val1, val2)) {
+        differences[k] = {
+          record1: val1,
+          record2: val2
+        };
+        differentFields.push(k);
+      }
+    }
+
+    if (Object.keys(differences).length > 0) {
+      mismatches.push({
+        primaryKeys: getPrimaryKeyObject(record1),
+        differences,
+        differentFields,
+        record1,
+        record2
+      });
+    }
+  }
+
+  return mismatches;
 }

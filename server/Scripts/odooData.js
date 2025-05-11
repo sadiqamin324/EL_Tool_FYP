@@ -36,8 +36,8 @@ export async function fetchOdooModuleData(
         "ir.model.data",
         "search_read",
         [
-          [[["module", "=", selectedModule]]], // Filter by module
-          { fields: ["model", "module"], limit: 10 }, // Limit models to 10
+          [[["module", "=", selectedModule]]],
+          { fields: ["model", "module"], limit: 10 },
         ],
         async (err, modelsData) => {
           if (err) {
@@ -52,28 +52,25 @@ export async function fetchOdooModuleData(
             return;
           }
 
-          // Ensure unique models under a single module object
           const moduleData = { module: selectedModule, models: [] };
 
-          // Fetch records for each model (each limited to 10 rows)
           for (const item of modelsData) {
-            const modelName = item.model.replace(/\./g, "_"); // Replace dots with underscores
+            const modelName = item.model.replace(/\./g, "_");
 
-            // 🔹 Check if this model already exists in moduleData.models
             if (moduleData.models.some((m) => m.model === modelName)) {
               console.warn(`⚠ Skipping duplicate model: ${modelName}`);
-              continue; // Skip duplicate models
+              continue;
             }
 
             try {
-              // Fetch the fields (columns) for each model
+              // Fetch fields (columns) with name, description, and type
               const fields = await new Promise((resolve, reject) => {
                 OdooInstance.execute_kw(
                   "ir.model.fields",
                   "search_read",
                   [
-                    [[["model", "=", item.model]]], // Filter by model name
-                    { fields: ["name", "field_description"] }, // Get field name and description
+                    [[["model", "=", item.model]]],
+                    { fields: ["name", "field_description", "ttype"] },
                   ],
                   (err, fieldsData) => {
                     if (err) {
@@ -89,12 +86,12 @@ export async function fetchOdooModuleData(
                 );
               });
 
-              // Fetch records for each model (each limited to 10 rows)
+              // Fetch records (rows)
               const records = await new Promise((resolve, reject) => {
                 OdooInstance.execute_kw(
-                  item.model, // Keep original model format
+                  item.model,
                   "search_read",
-                  [[], { limit: 10 }], // Fetch up to 10 records per model
+                  [[], { limit: 10 }],
                   (err, records) => {
                     if (err) {
                       console.error(
@@ -109,14 +106,23 @@ export async function fetchOdooModuleData(
                 );
               });
 
-              // Add model data to moduleData
+              // Extract column names, descriptions, and data types separately
+              const columns = fields.map((field) => ({
+                name: field.name,
+                description: field.field_description || "No description",
+              }));
+
+              const datatypes = fields.map((field) => ({
+                name: field.name,
+                type: field.ttype || "unknown",
+              }));
+
+              console.log("Datatypes", datatypes);
               moduleData.models.push({
                 model: modelName,
                 rows: records,
-                columns: fields.map((field) => ({
-                  name: field.name,
-                  description: field.field_description || "No description", // Include field description
-                })),
+                columns: columns,
+                datatypes: datatypes, // Separate array for data types
               });
             } catch (error) {
               console.warn(`⚠ Skipping model ${item.model} due to error.`);

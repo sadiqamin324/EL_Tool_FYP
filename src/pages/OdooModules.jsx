@@ -5,7 +5,7 @@ import { ClearTicked, toggleSelection } from "../components/Functions";
 import { Odoo_Data } from "../components/Context";
 import { LoaderPage } from "../components/Loader";
 
-export function OdooModules() {
+export function OdooModules({ setshowTable }) {
   const { source_tables } = useContext(SourceTables);
   const [selectedIndexes, setSelectedIndexes] = useState(new Set());
   const [selectedmodules, setselectedmodules] = useState(null);
@@ -27,7 +27,6 @@ export function OdooModules() {
     }
   }, [source_tables]);
 
-  const navigate = useNavigate();
   const storage_item = "selectedOdooModules";
 
   function ClickSelect() {
@@ -52,7 +51,6 @@ export function OdooModules() {
     if (!selectedmodules || selectedmodules.length === 0) return;
 
     const fetchTables = async () => {
-      navigate("/all-tables");
       try {
         const response = await fetch("http://localhost:5000/get-odoo-data", {
           method: "POST",
@@ -68,6 +66,7 @@ export function OdooModules() {
         const data = await response.json();
 
         if (data.success) {
+          setshowTable(true);
           console.log(
             "All table names of selected odoo modules recieved from backend"
           );
@@ -84,18 +83,21 @@ export function OdooModules() {
   }, [selectedmodules]);
 
   return dataArrived ? (
-    <div className="flex flex-col w-1/2 overflow-x-auto">
-      <div className="grid grid-cols-1 gap-x-4 py-2 pr-4 border-y border-r border-black">
-        <div>
-          <p className="text-center">All Odoo Modules</p>
+    <div className="flex flex-col w-2/3 overflow-x-auto">
+      <div className="py-2 pr-4 border-t border-x border-black">
+        <div className="h-[8vh] flex items-center justify-center">
+          <p className="text-center font-semibold text-2xl">Odoo Modules</p>
         </div>
       </div>
-      <div className="h-[40vh] overflow-y-auto grid grid-cols-1 gap-x-4 py-2 border-y border-r border-black">
+      <div className="h-[22vh] overflow-y-auto border border-black">
+        <div className="p-2">
+          <p className="py-1 font-semibold text-sm">module_name</p>
+        </div>
         {source_tables?.odoo_modules?.modules?.length > 0 ? (
           source_tables.odoo_modules.modules.map((row, index) => (
             <div
               key={index}
-              className="border-t p-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
+              className="border-t px-2 border-black flex items-center hover:bg-blue-200 hover:cursor-pointer"
               onClick={() =>
                 toggleSelection(
                   index,
@@ -105,7 +107,7 @@ export function OdooModules() {
                 )
               }
             >
-              <p className="w-full text-center text-sm">{row.name}</p>
+              <p className="w-full py-1 text-sm">{row.name}</p>
               <div className="tickbox flex justify-center items-center w-5 h-5 rounded-full border border-green-700 bg-white">
                 <div
                   className={`check w-2 h-2 rounded-full bg-green-400 ${
@@ -121,30 +123,22 @@ export function OdooModules() {
           </div>
         )}
       </div>
-      <div className="w-full flex h-[10vh] justify-end">
-        <div className="w-2/3">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-blue-500 self-start w-1/4 h-1/2 my-4 mx-2 text-white rounded-md"
-          >
-            Back
-          </button>
-        </div>
+      <div className="w-full border-black border-b border-x flex h-[8vh] justify-end items-center">
         <button
           onClick={() => {
             ClearTicked(setSelectedIndexes, settickedboxes, storage_item);
           }}
-          className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+          className={`w-1/3 h-2/3 my-4 mx-2 rounded-md text-white ${
             tickedboxes > 0
               ? "bg-blue-500 cursor-pointer"
               : "bg-blue-300 cursor-auto"
           }`}
         >
-          Clear All
+          Clear
         </button>
         <button
           onClick={ClickSelect}
-          className={`w-1/6 h-1/2 my-4 mx-2 rounded-md text-white ${
+          className={`w-1/3 h-2/3 my-4 mx-2 rounded-md text-white ${
             tickedboxes > 0
               ? "bg-red-400 cursor-pointer"
               : "bg-red-200 cursor-auto"
@@ -154,7 +148,5 @@ export function OdooModules() {
         </button>
       </div>
     </div>
-  ) : (
-    <LoaderPage />
-  );
+  ) : null;
 }
