@@ -135,7 +135,7 @@ export async function HandleClick() {
   }
 }
 
-export async function InsertNewUser() {
+export async function InsertNewUser(isSource) {
   let credentials = null;
 
   credentials = {
@@ -163,7 +163,7 @@ export async function InsertNewUser() {
       },
       body: JSON.stringify(credentials),
     });
-
+//
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
@@ -171,7 +171,8 @@ export async function InsertNewUser() {
     const data = await response.json();
 
     if (data.success) {
-      alert(`${inputs[0].value} added to sources`);
+      alert(`${inputs[0].value} added to ${isSource ? "sources" : "destinations"}`);
+
     } else {
       alert(
         `source with name ${inputs[0].value} or database ${inputs[4].value} already exists`

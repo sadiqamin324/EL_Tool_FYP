@@ -1,73 +1,190 @@
 import { useContext, useEffect, useState } from "react";
-import { Source_Rows, Password } from "../components/Context";
+import { Source_Rows, Password, Odoo_Data } from "../components/Context";
+import { LoaderPage } from "../components/Loader";
 import { data, useNavigate } from "react-router-dom";
-
+import "./../App.css";
+import { handleError } from "../components/Functions";
 export function Rows() {
   const { source_rows } = useContext(Source_Rows);
   const navigate = useNavigate();
   const [isSave, setisSave] = useState(false);
+  const [dataArrived, setdataArrived] = useState(false);
   const { Global_Password } = useContext(Password);
+  const { odoo_records } = useContext(Odoo_Data);
+  useEffect(() => {
+    if (
+      // Check if both source_rows and odoo_records are valid and have data
+      (source_rows && source_rows.length > 0) ||
+      (odoo_records && odoo_records.length > 0)
+    ) {
+      // Set dataArrived to true only when both arrays have data
+      setdataArrived(true);
+    }
+  }, [source_rows, odoo_records]); // Effect depends on both source_rows and odoo_records
 
-  return (
+  return dataArrived ? (
     <div>
       <DialogueBox
         isSave={isSave}
         setisSave={setisSave}
-        dumpdata={source_rows}
+        dump_postgres_data={source_rows}
+        dump_odoo_data={odoo_records}
         password={Global_Password}
       />
       <div
         className={`${isSave ? "blur-md" : "blur-0"} h-[70vh] overflow-auto`}
       >
-        {source_rows && source_rows.length > 0 ? (
-          source_rows.map((element, index) => (
-            <div className="flex items-center mb-8 flex-col">
-              <div className="flex justify-center my-2">
-                <p className="text-xl mx-2" key={index}>
-                  {`Database: `}
-                  <a className="font-bold">{element.database}</a>
-                </p>
-                <p className="text-xl mx-2" key={index}>
-                  {`Table: `}
-                  <a className="font-bold">{element.tableName}</a>
-                </p>
+        <div className="flex justify-evenly">
+          {source_rows?.length > 0 ? (
+            <div className="flex flex-col">
+              <div className="pt-10 pb-4">
+                <h1 className="text-center text-3xl ">
+                  Selected Postgres Tables
+                </h1>
               </div>
-
-              <div
-                className="grid w-max gap-x-8 py-2 px-4 border"
-                style={{
-                  gridTemplateColumns: `repeat(${element.columnArray.length},minmax(50px,100px))`,
-                }}
-              >
-                {element.columnArray.map((column, idx) => (
-                  <div>
-                    <p className={`font-semibold text-center`}>{column}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col">
-                {element.rows.map((row, rowIndex) => (
+              {source_rows && source_rows?.length > 0 ? (
+                source_rows.slice(0,49).map((element, index) => (
                   <div
-                    key={rowIndex}
-                    className="grid gap-x-8 w-max border py-2 px-4"
-                    style={{
-                      gridTemplateColumns: `repeat(${element.columnArray.length},minmax(50px,100px))`,
-                    }}
+                    key={index}
+                    className="flex items-between mb-8 flex-col w-[30rem] h-max py-8"
                   >
-                    {element.columnArray.map((col, colIndex) => (
-                      <p className={`text-center break-words`} key={colIndex}>
-                        {row[col]}
+                    {/* Database and Table Name */}
+                    <div className="flex justify-center my-2">
+                      <p className="text-lg mx-2">
+                        {`Database: `}
+                        <a className="font-bold text-center">
+                          {element.database}
+                        </a>
                       </p>
-                    ))}
+                      <p className="text-lg mx-2">
+                        {`Table: `}
+                        <a className="font-bold text-center">
+                          {element.tableName}
+                        </a>
+                      </p>
+                    </div>
+
+                    {/* Column Headers */}
+                    <div
+                      className="grid w-max gap-x-8 py-2 px-4 border bg-gray-200 rounded-t-lg"
+                      style={{
+                        gridTemplateColumns: `repeat(${element.columnArray.length},minmax(50px,100px))`,
+                      }}
+                    >
+                      {element?.columnArray?.length > 0 ? (
+                        element.columnArray.map((column, idx) => (
+                          <div key={idx}>
+                            <p className="font-semibold text-center text-sm">
+                              {column}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <div>
+                          <p className="font-semibold text-center text-sm">
+                            No columns available
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Rows */}
+                    <div className="flex flex-col">
+                      {element?.rows?.length > 0 &&
+                      element?.columnArray?.length > 0 ? (
+                        element.rows.slice(0, 50).map((row, rowIndex) => (
+                          <div
+                            key={rowIndex}
+                            className="grid gap-x-8 w-max border py-2 px-4"
+                            style={{
+                              gridTemplateColumns: `repeat(${element.columnArray.length}, minmax(50px, 100px))`,
+                            }}
+                          >
+                            {element.columnArray.map((col, colIndex) => (
+                              <p
+                                key={colIndex}
+                                className="text-center text-sm break-words"
+                              >
+                                {JSON.stringify(row[col])}
+                              </p>
+                            ))}
+                          </div>
+                        ))
+                      ) : (
+                        <div>
+                          <p className="font-semibold text-center text-sm">
+                            No data available
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ))}
-              </div>
+                ))
+              ) : (
+                <div>No data available</div>
+              )}
             </div>
-          ))
-        ) : (
-          <div>No data available</div>
-        )}
+          ) : (
+            <div className="flex flex-col">
+              <div className="pt-10 pb-4">
+                <h1 className="text-center text-3xl ">Selected Odoo Tables</h1>
+              </div>
+              {odoo_records && odoo_records?.length > 0 ? (
+                odoo_records.map((object, index) => (
+                  <div
+                    key={index}
+                    className="flex items-between mb-8 flex-col w-[30rem] h-[70vh] overflow-auto pr-16 py-8 custom-scrollbar"
+                  >
+                    <div className="flex justify-center my-2">
+                      <p className="text-lg mx-2">
+                        {`Table: `}
+                        <a className="font-bold">{object.tableName}</a>
+                      </p>
+                    </div>
+
+                    <div
+                      className="grid w-max gap-x-8 py-2 px-4 border bg-gray-200 rounded-t-lg"
+                      style={{
+                        gridTemplateColumns: `repeat(${object.columnArray.length},minmax(75px, 150px))`,
+                      }}
+                    >
+                      {object.columnArray.map((column, idx) => (
+                        <div key={idx}>
+                          <p className="font-semibold text-center text-sm">
+                            {column}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex flex-col">
+                      {object.rows.slice(0, 50).map((row, rowIndex) => (
+                        <div
+                          key={rowIndex}
+                          className="grid gap-x-8 w-max border py-2 px-4"
+                          style={{
+                            gridTemplateColumns: `repeat(${object.columnArray.length},minmax(75px, 150px))`,
+                          }}
+                        >
+                          {object.columnArray.map((col, colIndex) => (
+                            <p
+                              key={colIndex}
+                              className="text-center text-sm break-words"
+                            >
+                              {JSON.stringify(row[col])}
+                            </p>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div>No data available</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       <div className="w-1/2">
         <button
@@ -84,10 +201,18 @@ export function Rows() {
         </button>
       </div>
     </div>
+  ) : (
+    <LoaderPage />
   );
 }
 
-function DialogueBox({ isSave, setisSave, dumpdata, password }) {
+function DialogueBox({
+  isSave,
+  setisSave,
+  dump_postgres_data,
+  dump_odoo_data,
+  password,
+}) {
   const [DestinationData, setDestinationData] = useState();
   const [tickedboxes, settickedboxes] = useState(0);
   const [selectedIndexes, setSelectedIndexes] = useState(new Set());
@@ -125,15 +250,6 @@ function DialogueBox({ isSave, setisSave, dumpdata, password }) {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const storedSelections = localStorage.getItem("selectedIndexesDestination");
-    if (storedSelections) {
-      const parsedSelections = JSON.parse(storedSelections);
-      setSelectedIndexes(new Set(parsedSelections));
-      settickedboxes(parsedSelections.length); // Ensure buttons update
-    }
-  }, []);
-
   function toggleSelection(index) {
     setSelectedIndexes((prev) => {
       const newSet = new Set(prev);
@@ -144,22 +260,18 @@ function DialogueBox({ isSave, setisSave, dumpdata, password }) {
       }
       settickedboxes(newSet.size);
 
-      // Save to localStorage
-      localStorage.setItem(
-        "selectedIndexesDestination",
-        JSON.stringify([...newSet])
-      );
-
       return newSet;
     });
   }
 
   async function DumpData() {
     let database_name;
-
     [...selectedIndexes].map((index) => {
       database_name = DestinationData[index].database_name;
     });
+
+    //Merging both arrays together
+    let dumpdata = dump_postgres_data.concat(dump_odoo_data);
 
     try {
       const response = await fetch("http://localhost:5000/dump-data", {
@@ -175,22 +287,20 @@ function DialogueBox({ isSave, setisSave, dumpdata, password }) {
       }
 
       const data = await response.json();
-      console.log(data);
+
       if (data.success) {
-        console.log("flag sent to backend");
+        alert("All data dumped to destination successfully");
       } else {
         alert("failed to send flag to backend");
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to send information to backend");
+      handleError(error);
     }
   }
 
   function ClearTicked() {
     setSelectedIndexes(new Set()); // Reset selected checkboxes
     settickedboxes(0); // Reset counter
-    localStorage.removeItem("selectedIndexesDestinations"); // Remove from storage
   }
 
   return (
@@ -218,7 +328,7 @@ function DialogueBox({ isSave, setisSave, dumpdata, password }) {
               key={index}
             >
               <p className="py-1 text-center text-sm">
-                {Object.values(row)[1]}
+                {Object.values(row)[0]}
               </p>
               <div className="flex justify-end items-center">
                 <div className="tickbox flex justify-center items-center w-5 h-5 rounded-sm border border-green-700 bg-white mr-1">

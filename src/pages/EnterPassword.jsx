@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useContext, useRef, useState, useEffect } from "react";
-import Inputbox from "./InputBox.jsx";
+import Inputbox from "../components/InputBox.jsx";
 import { DialogueContext, isHidden } from "../components/Context.js";
-import { Password } from "./Context.js";
+import { Password } from "../components/Context.js";
 
 export default function PasswordBox() {
   const InputBox = useRef(null);
@@ -12,18 +12,6 @@ export default function PasswordBox() {
   const navigate = useNavigate(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { dialogShown, setDialogShown } = useContext(DialogueContext);
-  const { ishidden, setIshidden } = useContext(isHidden);
-
-  useEffect(() => {
-    if (!dialogShown.current) {
-      console.log("Initial state", dialogShown.current);
-      dialogShown.current = true;
-      console.log("Final state", dialogShown.current);
-    } else {
-      console.log("Now state", dialogShown.current);
-    }
-  }, []);
 
   async function HandleButton() {
     if (InputBox.current.value.trim() !== "") {
@@ -43,7 +31,7 @@ export default function PasswordBox() {
         if (data.success) {
           alert("Connected to System DB successfully");
           setGlobal_Password(InputBox.current.value);
-          setIshidden("hidden");
+          navigate("/home")
         } else {
           alert("Wrong password, retry!");
         }
@@ -79,7 +67,7 @@ export default function PasswordBox() {
   return (
     <div
       ref={DialogueDiv}
-      className={`${ishidden} z-20 ml-96 mt-40 w-1/2 h-1/2 bg-white rounded-lg absolute`}
+      className="z-20 ml-96 mt-40 w-1/2 h-1/2 bg-white rounded-lg absolute"
     >
       <div className="h-2/3 w-full flex flex-col justify-center items-center">
         <label className="font-semibold" htmlFor="">
