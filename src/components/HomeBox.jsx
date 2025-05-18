@@ -40,8 +40,12 @@ export default function Homebox({
   const [frequency, setfrequency] = useState(null);
   const [Day, setDay] = useState("mon");
   const [pipeline_name, setpipeline_name] = useState(null);
+  const [Index, setIndex] = useState(new Set())
+
 
   const navigate = useNavigate();
+  //for indexes that are running for pipeling
+  const running_indexes = new Set();
 
   function Refresh() {
     setsharedValue(null);
@@ -341,6 +345,13 @@ export default function Homebox({
 
   async function RunPipeline(index) {
     const pipeline_record = sharedValue[index];
+
+    setIndex(prevSet => {
+      const newSet = new Set(prevSet);
+      newSet.add(index);
+      return newSet;
+    });
+
     try {
       const response = await fetch(`http://localhost:5000/run-pipeline`, {
         method: "POST",
@@ -358,26 +369,32 @@ export default function Homebox({
 
       if (data.success) {
         console.log("Successfully completed pipeline");
+        alert(data.message);
+
       } else {
         alert("failed to recive pipeline records from backend");
       }
+
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to send information to backend");
     }
+    setIndex(prevSet => {
+      const newSet = new Set(prevSet);
+      newSet.delete(index);
+      return newSet;
+    });
   }
 
   return (
     <div className="flex flex-col w-full h-80 justify-between mb-8">
       <div
-        className={`${
-          dialogue_open ? "" : "hidden"
-        } dialogue-box w-1/2 h-1/2 border-2 bg-white absolute`}
+        className={`${dialogue_open ? "" : "hidden"
+          } dialogue-box w-1/2 h-1/2 border-2 bg-white absolute`}
       >
         <div
-          className={`${
-            delete_box ? "" : "hidden"
-          } confirm-delete-box absolute w-full h-2/3 flex justify-center items-center`}
+          className={`${delete_box ? "" : "hidden"
+            } confirm-delete-box absolute w-full h-2/3 flex justify-center items-center`}
         >
           <div className="w-[48%] h-2/3 border-2 border-black bg-white flex flex-col justify-center items-center gap-2">
             <p>
@@ -405,9 +422,8 @@ export default function Homebox({
           </div>
         </div>
         <div
-          className={`${
-            save_open ? "" : "hidden"
-          } save-transition absolute w-full h-2/3 flex justify-center items-center`}
+          className={`${save_open ? "" : "hidden"
+            } save-transition absolute w-full h-2/3 flex justify-center items-center`}
         >
           <div className="w-[48%] h-2/3 border-2 border-black bg-white flex flex-col justify-center items-center gap-2">
             <p>Saving changes</p>
@@ -532,19 +548,19 @@ export default function Homebox({
               item.id,
               ...(title === "Source"
                 ? [
-                    item.source_name,
-                    item.source_type,
-                    item.database_name,
-                    item.host,
-                  ]
+                  item.source_name,
+                  item.source_type,
+                  item.database_name,
+                  item.host,
+                ]
                 : title === "Destination"
-                ? [
+                  ? [
                     item.destination_name,
                     item.destination_type,
                     item.database_name,
                     item.host,
                   ]
-                : [
+                  : [
                     item.pipeline_name,
                     item.source_table_name,
                     item.dest_db,
@@ -583,14 +599,12 @@ export default function Homebox({
       {title == "Pipeline" ? (
         <div className="scheduler">
           <div
-            className={`${
-              open_pipeline_window ? "" : "hidden"
-            } pipeline-window absolute left-2 top-0 w-[98rem] h-[98vh] bg-white flex justify-center`}
+            className={`${open_pipeline_window ? "" : "hidden"
+              } pipeline-window absolute left-2 top-0 w-[98rem] h-[98vh] bg-white flex justify-center`}
           >
             <div
-              className={`${
-                open_schedule_box ? "" : "hidden"
-              } p-2 select-date-time-box bg-white border gap-y-2 flex flex-col border-black w-60 h-max absolute top-52`}
+              className={`${open_schedule_box ? "" : "hidden"
+                } p-2 select-date-time-box bg-white border gap-y-2 flex flex-col border-black w-60 h-max absolute top-52`}
             >
               <label htmlFor="">Select day:</label>
               <select
@@ -620,9 +634,8 @@ export default function Homebox({
                 onChange={(e) => setTime(e.target.value)}
               />
               <div
-                className={`${
-                  Day == "every day" ? "hidden" : ""
-                } flex justify-between items-center mt-1`}
+                className={`${Day == "every day" ? "hidden" : ""
+                  } flex justify-between items-center mt-1`}
               >
                 <label htmlFor="">Select frequency:</label>
                 <input
@@ -641,11 +654,10 @@ export default function Homebox({
                     SchedulePipeline(Day, Time, frequency, pipeline_name);
 
                   }}
-                  className={`p-2 rounded-md text-white w-1/2 ${
-                    !(Time && frequency)
-                      ? "bg-pink-200 cursor-not-allowed"
-                      : "bg-pink-400 hover:bg-pink-500"
-                  }`}
+                  className={`p-2 rounded-md text-white w-1/2 ${!(Time && frequency)
+                    ? "bg-pink-200 cursor-not-allowed"
+                    : "bg-pink-400 hover:bg-pink-500"
+                    }`}
                   disabled={!Time} // Actually disable the button when no value
                 >
                   Schedule
@@ -671,37 +683,47 @@ export default function Homebox({
             <div className="div w-2/3 h-full">
               {sharedValue && sharedValue.length > 0
                 ? sharedValue.map((record, index) => (
-                    <div className="border border-blue-500 my-2 rounded-xl p-2 grid grid-cols-4 items-center">
+                  <div className="flex flex-col justify-center items-center">
+                    <div className="w-full border border-2 my-2 rounded-xl p-2 grid grid-cols-4 items-center">
+
                       <p className="w-max text-center">{record.id}</p>
                       <p className="w-max text-center">
                         {record.pipeline_name}
                       </p>
                       <button
+                        disabled={Index.has(index)}
                         onClick={() => {
                           RunPipeline(index);
                         }}
-                        className="p-2 w-max h-max text-center rounded-md hover:bg-blue-600 text-white bg-blue-500"
+                        className={`${Index.has(index) ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"} p-2 w-max h-max text-center rounded-md text-white`}
                       >
                         Run
                       </button>
                       <button
+                        disabled={Index.has(index)}
                         onClick={() => {
                           setopen_schedule_box(true);
                           setpipeline_name(record.pipeline_name);
                         }}
-                        className="p-2 w-max h-max text-center rounded-md hover:bg-blue-600 text-white bg-blue-500"
+                        className={`${Index.has(index) ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"} p-2 w-max h-max text-center rounded-md text-white`}
                       >
                         Automate
                       </button>
                     </div>
-                  ))
+                    <div className={`${Index.has(index) ? "" : "hidden"} w-1/4 flex flex-col gap-y-2`}>
+                      <div className="w-full h-3 border border-2 border-gray-300">
+                        <div className="h-full bg-red-400 animate-grow-width"></div>
+                      </div>
+                      <p className="text-center text-sm">Executing Pipeline</p>
+                    </div>
+                  </div>
+                ))
                 : null}
             </div>
           </div>
           <div
-            className={`${
-              (sharedValue && sharedValue.length) > 0 ? "" : "hidden"
-            } w-full flex justify-end`}
+            className={`${(sharedValue && sharedValue.length) > 0 ? "" : "hidden"
+              } w-full flex justify-end`}
           >
             <button
               onClick={() => {
@@ -709,11 +731,10 @@ export default function Homebox({
                 window.scrollTo(0, 0); // (x-coordinate, y-coordinate)
               }}
               disabled={!(sharedValue && sharedValue.length > 0)}
-              className={`${
-                sharedValue && sharedValue.length > 0
-                  ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-                  : "bg-blue-300 cursor-not-allowed"
-              } w-max h-max py-3 px-2 rounded-md text-white`}
+              className={`${sharedValue && sharedValue.length > 0
+                ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                : "bg-blue-300 cursor-not-allowed"
+                } w-max h-max py-3 px-2 rounded-md text-white`}
             >
               Schedule Pipelines
             </button>

@@ -9,8 +9,7 @@ import {
 import { useContext, useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toggleSelection, ClearTicked } from "../components/Functions";
-import { use } from "react";
-import { LoaderPage } from "../components/Loader";
+import { SpinnerBox } from "../components/SpinnerBox.jsx";
 
 export function Tables({ setshowCol }) {
   const [tickedboxes, settickedboxes] = useState(0);
@@ -66,6 +65,7 @@ export function Tables({ setshowCol }) {
       alert("Failed to send information to backend");
     }
   }
+  
   function ClickSelect() {
     let Postgres_columns = [];
     let Odoo_columns = [];
@@ -106,12 +106,10 @@ export function Tables({ setshowCol }) {
   useEffect(() => {
     if (!SelectbuttonRef.current || !ClearbuttonRef.current) return; // Ensure button exists before modifying
     const isActive = tickedboxes > 0;
-    SelectbuttonRef.current.className = `w-1/6 h-1/2 my-4 mx-2 rounded-md text-white  ${
-      isActive ? "bg-blue-500 cursor-pointer" : "bg-blue-300 cursor-auto"
-    }`;
-    SelectbuttonRef.current.className = `w-1/6 h-1/2 my-4 mx-2 rounded-md text-white  ${
-      isActive ? "bg-blue-500 cursor-pointer" : "bg-blue-300 cursor-auto"
-    }`;
+    SelectbuttonRef.current.className = `w-1/6 h-1/2 my-4 mx-2 rounded-md text-white  ${isActive ? "bg-blue-500 cursor-pointer" : "bg-blue-300 cursor-auto"
+      }`;
+    SelectbuttonRef.current.className = `w-1/6 h-1/2 my-4 mx-2 rounded-md text-white  ${isActive ? "bg-blue-500 cursor-pointer" : "bg-blue-300 cursor-auto"
+      }`;
   }, [tickedboxes]);
 
   return dataArrived ? (
@@ -149,9 +147,8 @@ export function Tables({ setshowCol }) {
                         </p>
                         <div className="tickbox flex justify-center items-center w-5 h-5 border rounded-full border-green-700 bg-white">
                           <div
-                            className={`check w-2 h-2 bg-cover rounded-full bg-green-400 ${
-                              selectedIndexes.has(uniqueId) ? "" : "hidden"
-                            }`}
+                            className={`check w-2 h-2 bg-cover rounded-full bg-green-400 ${selectedIndexes.has(uniqueId) ? "" : "hidden"
+                              }`}
                           ></div>
                         </div>
                       </div>
@@ -195,9 +192,8 @@ export function Tables({ setshowCol }) {
                           </p>
                           <div className="tickbox flex justify-center items-center w-5 h-5 rounded-full border border-green-700 bg-white">
                             <div
-                              className={`check w-2 h-2 rounded-full bg-green-400 ${
-                                selectedIndexes.has(uniqueId) ? "" : "hidden"
-                              }`}
+                              className={`check w-2 h-2 rounded-full bg-green-400 ${selectedIndexes.has(uniqueId) ? "" : "hidden"
+                                }`}
                             ></div>
                           </div>
                         </div>
@@ -227,26 +223,24 @@ export function Tables({ setshowCol }) {
           onClick={() => {
             ClearTicked(setSelectedIndexes, settickedboxes);
           }}
-          className={`h-1/2 my-4 mx-2 w-1/3 rounded-md text-white ${
-            tickedboxes > 0
+          className={`h-1/2 my-4 mx-2 w-1/3 rounded-md text-white ${tickedboxes > 0
               ? "bg-red-400 cursor-pointer"
               : "bg-red-200 cursor-auto"
-          }`}
+            }`}
         >
           Clear
         </button>
         <button
           onClick={ClickSelect}
           ref={SelectbuttonRef}
-          className={`h-1/2 my-4 mx-2 w-1/3 rounded-md text-white ${
-            tickedboxes > 0
+          className={`h-1/2 my-4 mx-2 w-1/3 rounded-md text-white ${tickedboxes > 0
               ? "bg-blue-500 cursor-pointer"
               : "bg-blue-300 cursor-auto"
-          }`}
+            }`}
         >
           Select
         </button>
       </div>
     </div>
-  ) : null;
+  ) : <SpinnerBox />;
 }

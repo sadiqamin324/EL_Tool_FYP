@@ -7,9 +7,8 @@ import {
   Odoo_Data,
 } from "../components/Context";
 import { useContext, useRef, useState, useEffect } from "react";
-import { data, useNavigate } from "react-router-dom";
 import { ClearTicked } from "../components/Functions";
-import { LoaderPage } from "../components/Loader";
+import { SpinnerBox } from "../components/SpinnerBox";
 
 export function Columns({ setshowDest, setpipeline_record }) {
   const [tickedboxes, settickedboxes] = useState();
@@ -333,5 +332,5 @@ export function Columns({ setshowDest, setpipeline_record }) {
         </button>
       </div>
     </div>
-  ) : null;
+  ) : <SpinnerBox />;
 }

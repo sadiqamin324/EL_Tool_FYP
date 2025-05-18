@@ -53,17 +53,43 @@ export default async function getAllColumns(
 
   try {
     // Query to fetch columns + data types + primary key info
+    // const [columns] = await sequelize.query(`
+    //   SELECT 
+    //     c.column_name, 
+    //     c.data_type,
+    //     CASE WHEN kcu.column_name IS NOT NULL THEN true ELSE false END AS is_primary
+    //   FROM 
+    //     information_schema.columns c
+    //   LEFT JOIN 
+    //     information_schema.key_column_usage kcu
+    //   ON 
+    //     c.column_name = kcu.column_name
+    //     AND c.table_name = kcu.table_name
+    //     AND c.table_schema = kcu.table_schema
+    //     AND kcu.constraint_name IN (
+    //       SELECT constraint_name 
+    //       FROM information_schema.table_constraints 
+    //       WHERE constraint_type = 'PRIMARY KEY'
+    //     )
+    //   WHERE 
+    //     c.table_name = '${tableName}' 
+    //     AND c.table_schema = 'public';
+    // `);
+
     const [columns] = await sequelize.query(`
-      SELECT 
+          SELECT 
         c.column_name, 
-        c.data_type,
+        CASE 
+          WHEN c.character_maximum_length IS NOT NULL 
+          THEN c.data_type || '(' || c.character_maximum_length || ')' 
+          ELSE c.data_type 
+        END AS data_type,
         CASE WHEN kcu.column_name IS NOT NULL THEN true ELSE false END AS is_primary
       FROM 
         information_schema.columns c
       LEFT JOIN 
         information_schema.key_column_usage kcu
-      ON 
-        c.column_name = kcu.column_name
+        ON c.column_name = kcu.column_name
         AND c.table_name = kcu.table_name
         AND c.table_schema = kcu.table_schema
         AND kcu.constraint_name IN (
@@ -73,9 +99,9 @@ export default async function getAllColumns(
         )
       WHERE 
         c.table_name = '${tableName}' 
-        AND c.table_schema = 'public';
-    `);
+        AND c.table_schema = 'public';`)
 
+    console.log("Columns and datatypes", columns)
     return {
       database,
       tableName,

@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { SourceTables } from "../components/Context";
 import { ClearTicked, toggleSelection } from "../components/Functions";
 import { Odoo_Data } from "../components/Context";
-import { LoaderPage } from "../components/Loader";
+import { SpinnerBox } from "../components/SpinnerBox.jsx";
 
 export function OdooModules({ setshowTable }) {
   const { source_tables } = useContext(SourceTables);
@@ -110,9 +110,8 @@ export function OdooModules({ setshowTable }) {
               <p className="w-full py-1 text-sm">{row.name}</p>
               <div className="tickbox flex justify-center items-center w-5 h-5 rounded-full border border-green-700 bg-white">
                 <div
-                  className={`check w-2 h-2 rounded-full bg-green-400 ${
-                    selectedIndexes.has(index) ? "" : "hidden"
-                  }`}
+                  className={`check w-2 h-2 rounded-full bg-green-400 ${selectedIndexes.has(index) ? "" : "hidden"
+                    }`}
                 ></div>
               </div>
             </div>
@@ -128,25 +127,24 @@ export function OdooModules({ setshowTable }) {
           onClick={() => {
             ClearTicked(setSelectedIndexes, settickedboxes, storage_item);
           }}
-          className={`w-1/3 h-2/3 my-4 mx-2 rounded-md text-white ${
-            tickedboxes > 0
-              ? "bg-blue-500 cursor-pointer"
-              : "bg-blue-300 cursor-auto"
-          }`}
+          className={`w-1/3 h-2/3 my-4 mx-2 rounded-md text-white ${tickedboxes > 0
+            ? "bg-blue-500 cursor-pointer"
+            : "bg-blue-300 cursor-auto"
+            }`}
         >
           Clear
         </button>
         <button
           onClick={ClickSelect}
-          className={`w-1/3 h-2/3 my-4 mx-2 rounded-md text-white ${
-            tickedboxes > 0
-              ? "bg-red-400 cursor-pointer"
-              : "bg-red-200 cursor-auto"
-          }`}
+          className={`w-1/3 h-2/3 my-4 mx-2 rounded-md text-white ${tickedboxes > 0
+            ? "bg-red-400 cursor-pointer"
+            : "bg-red-200 cursor-auto"
+            }`}
         >
           Select
         </button>
       </div>
     </div>
-  ) : null;
+  ) :
+    <SpinnerBox />;
 }

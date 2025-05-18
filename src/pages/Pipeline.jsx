@@ -584,6 +584,7 @@ function DialogueBox({
 
       if (data.success) {
         console.log("pipeline row added successfully");
+        setopenDialogue(false)
         alert(data.message);
       } else {
         alert("Some error occured");

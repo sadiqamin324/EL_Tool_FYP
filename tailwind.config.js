@@ -2,6 +2,15 @@ module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      animation: {
+        'grow-width': 'growWidth 1s ease-in-out infinite',
+      },
+      keyframes: {
+        growWidth: {
+          '0%': { width: '0%' },
+          '100%': { width: '100%' },
+        }
+      },
       backgroundImage: {
         "back-pattern": "url('./src/assets/back-pattern.jpg')",
         "back-eye": "url('./src/assets/back-eye.png')",

@@ -19,7 +19,7 @@ export default function Home() {
               <div >
                 <Navbar />
                 <div className="flex justify-center mt-8">
-                  <div className="grid grid-cols-1 grid-rows-3 w-max gap-x-16 gap-y-8">
+                  <div className="grid grid-cols-1 grid-rows-3 w-5/6 gap-x-16 gap-y-8">
                     <Homebox title="Source" />
                     <Homebox title="Destination" />
                     <Homebox title="Pipeline" />

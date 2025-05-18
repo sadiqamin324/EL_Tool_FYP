@@ -1276,7 +1276,7 @@ app.post("/run-pipeline", async (req, res) => {
           AND tc.table_name = '${pipeline_record.source_table_name}'
           AND tc.table_schema = 'public'
       `);
-
+      
       primaryKeyColumns = primaryKeys.map(pk => pk.primary_key_column);
       console.log("All primary keys", primaryKeyColumns);
 
@@ -1381,7 +1381,7 @@ app.post("/run-pipeline", async (req, res) => {
     if (Dest_Table[0].has_data) {
       const dest_data = await Destination.query(
         `SELECT ${pipeline_record.columns
-          .map((col) => `"${col}"`) 
+          .map((col) => `"${col}"`)
           .join(", ")} 
          FROM "${pipeline_record.dest_table_name}"`,
         {
@@ -1689,6 +1689,7 @@ app.post("/add-pipeline", async (req, res) => {
       );
 
       // 2. First add all existing datatypes from pipeline_record
+      console.log("pipeline_record.datatypes", pipeline_record.datatypes)
       pipeline_record.datatypes.forEach(item => {
         uniqueDatatypes.set(item.name, item);
       });
