@@ -10,6 +10,7 @@ import { Tables } from "./pages/Tables.jsx";
 import PasswordBox from "./pages/EnterPassword.jsx";
 import { Columns } from "./pages/Columns.jsx";
 import { OdooModules } from "./pages/OdooModules.jsx";
+import { HomePage } from "./pages/HomePage.jsx";
 import {
   SourceTables,
   DestTables,
@@ -51,7 +52,8 @@ export default function App() {
                 >
                   <BrowserRouter>
                     <Routes>
-                      <Route path="/" element={<PasswordBox />} />
+                      <Route path="/password" element={<PasswordBox />} />
+                      <Route path="/" element={<HomePage />} />
                       <Route path="/home" element={<Home />} />
                       <Route path="/SignUp" element={<SignUp />} />
                       <Route path="/SignIn" element={<SignIn />} />

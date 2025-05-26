@@ -22,6 +22,10 @@ module.exports = {
         "edit": "url('./src/assets/Edit.png')",
         "delete": "url('./src/assets/delete.png')",
         "green-dot": "url('./src/assets/green-dot.png')",
+        "nova-icon": "url('./src/assets/Nova icon.png')",
+        "add-browser": "url('./src/assets/Add-browser.png')",
+        "black-texture": "url('./src/assets/black-texture.jpg')",
+        "black-texture-2": "url('./src/assets/black-texture-2.jpg')",
       },
       colors: {
         "white-60": "rgba(255, 255, 255, 0.6)",
