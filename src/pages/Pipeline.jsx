@@ -164,7 +164,7 @@ function SourceBox({
   const source_name_ref = useRef(null);
   const { setsource_tables } = useContext(SourceTables);
   const { setdest_columns } = useContext(DestTables);
-  const navigate = useNavigate();
+
 
   let modifier;
 
@@ -204,7 +204,6 @@ function SourceBox({
 
       setselectedSources(selectedNames);
     });
-    console.log("Here is the problem", selectedNames[0].source_name);
     if (selectedNames[0].source_type == "Odoo") {
       setpipeline_record((prev) => ({
         ...prev, // Copy all existing properties
@@ -285,9 +284,8 @@ function SourceBox({
                 <div className="flex justify-end items-center">
                   <div className="tickbox flex justify-center items-center w-5 h-5 rounded-full border border-green-700 bg-white mr-1">
                     <div
-                      className={`check w-2 h-2 rounded-full bg-green-400${
-                        selectedIndexes.has(index) ? "" : "hidden"
-                      }`}
+                      className={`check w-2 h-2 rounded-full bg-green-400${selectedIndexes.has(index) ? "" : "hidden"
+                        }`}
                     ></div>
                   </div>
                 </div>
@@ -304,11 +302,10 @@ function SourceBox({
         <button
           ref={buttonRef}
           onClick={ClickSelect}
-          className={`w-1/3 h-1/2 my-4 mx-2 rounded-md text-white ${
-            tickedboxes > 0
+          className={`w-1/3 h-1/2 my-4 mx-2 rounded-md text-white ${tickedboxes > 0
               ? "bg-blue-500 cursor-pointer"
               : "bg-blue-300 cursor-auto"
-          }`}
+            }`}
         >
           Select
         </button>
@@ -376,11 +373,10 @@ function Pipeline_Name_Box({ sethasEnter, setpipeline_record }) {
         <button
           onClick={handleRef}
           disabled={isEnterDisabled}
-          className={`w-1/3 h-1/2 my-4 mx-2 rounded-md text-white ${
-            isEnterDisabled
+          className={`w-1/3 h-1/2 my-4 mx-2 rounded-md text-white ${isEnterDisabled
               ? "bg-blue-300 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-600"
-          }`}
+            }`}
         >
           Enter
         </button>
@@ -509,9 +505,8 @@ function DestinationBox({
                   <div className="flex justify-end items-center">
                     <div className="tickbox flex justify-center items-center w-5 h-5 rounded-full border border-green-700 bg-white mr-1">
                       <div
-                        className={`check w-2 h-2 bg-green-400 rounded-full ${
-                          selectedIndexes.has(index) ? "" : "hidden"
-                        }`}
+                        className={`check w-2 h-2 bg-green-400 rounded-full ${selectedIndexes.has(index) ? "" : "hidden"
+                          }`}
                       ></div>
                     </div>
                   </div>
@@ -535,22 +530,20 @@ function DestinationBox({
         <button
           onClick={HandleClearRef}
           disabled={isEnterDisabled} // Clear should be disabled when no destination is selected
-          className={`w-1/3 h-1/2 my-4 mx-2 rounded-md text-white ${
-            isEnterDisabled
+          className={`w-1/3 h-1/2 my-4 mx-2 rounded-md text-white ${isEnterDisabled
               ? "bg-red-200 cursor-auto"
               : "bg-red-400 cursor-pointer"
-          }`}
+            }`}
         >
           Clear
         </button>
         <button
           onClick={handleRef}
           disabled={isEnterDisabled} // Enter should be disabled when input is empty OR no destination selected
-          className={`w-1/3 h-1/2 my-4 mx-2 rounded-md text-white ${
-            isEnterDisabled
+          className={`w-1/3 h-1/2 my-4 mx-2 rounded-md text-white ${isEnterDisabled
               ? "bg-blue-300 cursor-auto"
               : "bg-blue-500 cursor-pointer"
-          }`}
+            }`}
         >
           Enter
         </button>
@@ -597,9 +590,8 @@ function DialogueBox({
 
   return (
     <div
-      className={`${
-        openDialogue ? "" : "hidden"
-      } absolute z-10 flex justify-center items-center w-full h-2/3`}
+      className={`${openDialogue ? "" : "hidden"
+        } absolute z-10 flex justify-center items-center w-full h-2/3`}
     >
       <div className="w-1/4 h-1/3 bg-white border border-black p-4">
         <p>Create a new pipeline?</p>
