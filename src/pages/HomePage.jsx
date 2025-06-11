@@ -2,6 +2,9 @@ import Tag from '../components/Tag.jsx';
 import { useRef, useEffect, useState } from 'react';
 import { Button } from '../components/Button.jsx';
 import { TechLogo } from '../components/TechLogos.jsx';
+import React from 'react';
+import { BiBarChartSquare } from 'react-icons/bi';
+import Charts from '../components/Charts.jsx';
 
 export function HomePage() {
     const arrowRef = useRef(null);
@@ -29,7 +32,7 @@ export function HomePage() {
     return (
         <div
             className="px-28">
-            <div className='w-full flex justify-center items-center sticky top-0 h-24'>
+            <div className='w-full flex justify-center items-center sticky top-0 h-24 z-10'>
                 <div ref={NavRef} className={`navbar h-1/2 rounded-xl items-center bg-white flex w-full border-white/70 transition-all ease-in-out duration-[1000ms] ${scrollFlag ? "backdrop-blur-sm bg-white/95 border shadow-lg" : ""}`}>
                     <div className="w-[35%] flex items-center">
                         <div className="w-14 h-14 bg-nova-icon bg-cover"></div>
@@ -105,7 +108,7 @@ export function HomePage() {
             </div>
             <div className='tech-stack mt-8 grid grid-cols-1 gap-y-8 justify-items-center'>
                 <div className='w-full flex justify-between items-center'>
-                    <div className='w-28 h-20 bg-postgres bg-cover'></div>
+                    <div className='w-14 h-16 bg-postgres bg-cover'></div>
                     <div className='w-[5.4rem] h-[4.2vh] bg-odoo bg-cover'></div>
                     <div className='w-16 h-16 bg-react bg-cover'></div>
                     <div className='w-16 h-16 bg-express bg-cover'></div>
@@ -118,7 +121,7 @@ export function HomePage() {
                 </div>
             </div>
             <div className='w-full h-[95vh] mt-16'>
-                <div className='w-full h-full rounded-[6vh] bg-black bg-space flex flex-col items-center pt-36'>
+                <div className='w-full h-full relative rounded-[6vh] bg-black bg-space flex flex-col items-center pt-28'>
                     <div className="rounded-full w-max px-2 h-max py-1 bg-white flex justify-center items-center">
                         <div className="w-4 h-4 bg-db-logo bg-cover mr-1"></div>
                         <div className='text-xs font-medium'>Data harmony</div>
@@ -132,23 +135,78 @@ export function HomePage() {
                     <div className='mt-6'>
                         <Button label={"Get started today"} />
                     </div>
-                    <div className='mt-16'>
+                    <div className='mt-28'>
                         <div className='bg-nova-icon-wob block my-0 p-0 border border-white bg-cover w-24 h-24 rounded-lg shadow-lg shadow-sky-600/60'></div>
                     </div>
 
                     {/* Tech Container */}
 
-                    {/* <div className='absolute w-[14rem] h-[40vh] bg-blue-400 logos grid grid-cols-1 grid-rows-3'>
+                    <div className='absolute top-56 left-20 w-[12rem] h-[40vh]  logos grid grid-cols-1 grid-rows-3'>
                         <TechLogo justify='end' width={'10'} height={'12'} logo={'postgres'} />
                         <TechLogo justify='start' width={'10'} height={'10'} logo={'sequelize'} />
                         <TechLogo justify='end' width={'8'} height={'8'} logo={'mysql'} />
-                    </div> */}
-
-                    <div className='absolute w-[14rem] h-[40vh] bg-blue-400 logos grid grid-cols-1 grid-rows-3'>
-                        <TechLogo justify='end' width={'10'} height={'12'} logo={'apache'} />
-                        <TechLogo justify='start' width={'10'} height={'10'} logo={'yarn'} />
-                        <TechLogo justify='end' width={'8'} height={'8'} logo={'mysql'} />
                     </div>
+
+                    <div className='absolute top-56 right-20 w-[12rem] h-[40vh]  logos grid grid-cols-1 grid-rows-3'>
+                        <TechLogo justify='start' width={'8'} height={'8'} logo={'apache'} />
+                        <TechLogo justify='end' width={'10'} height={'10'} logo={'yarn'} />
+                        <TechLogo justify='start' width={'8'} height={'8'} logo={'mongodb'} />
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div className='w-full h-[120vh] mt-16'>
+                <div className='w-full h-full relative rounded-[6vh] bg-black bg-space flex flex-col items-center pt-28'>
+                    <div className="rounded-full w-max px-2 h-max py-1 bg-white flex justify-center items-center">
+                        <div className="w-4 h-4 bg-db-logo bg-cover mr-1"></div>
+                        <div className='text-xs font-medium'>Accessible for all</div>
+                    </div>
+                    <div className='w-full flex justify-center mt-2'>
+                        <p className='text-5xl text-white'>Filter your sources your way</p>
+                    </div>
+                    <div className='flex justify-center mt-4'>
+                        <p className='w-2/3 text-white text-center'>Nova provides a process to filter your sources and select the desired table and columns.</p>
+                    </div>
+                    <div className='mt-6'>
+                        <Button label={"Configure a source"} />
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div className='w-full h-max mt-16'>
+                <div className='w-full h-full relative rounded-[6vh] flex flex-col items-center pt-28'>
+                    <div className="rounded-full w-max px-3 h-max py-2 bg-slate-100 border border-gray-200 flex justify-center items-center">
+                        <div className="w-4 h-4 bg-db-logo bg-cover mr-1"></div>
+                        <div className='text-xs text-black font-medium'>View your data</div>
+                    </div>
+                    <div className='w-full flex justify-center mt-2'>
+                        <p className='text-5xl text-center text-black'>Visualize data</p>
+                    </div>
+                    <div className='w-full flex justify-center mt-2'>
+                        <p className='text-5xl text-center text-black'>with real-time insights</p>
+                    </div>
+                    <div className='flex justify-center mt-4'>
+                        <p className='w-2/3 text-black text-center'>Visualize your data in a variety of ways thanks to a robust set of visualizations. Whether it’s as a table, a chart, or a single value — you’re in control.</p>
+                    </div>
+                    <div className='w-full grid grid-cols-3 mt-16 justify-center gap-2 items-center'>
+                        <Charts title={"User Signups"} keys={[{ "orange-400": "Supercart +users" }, { "sky-400": "Non-premium users" }]} pic={"linechart"} YCordinates={['1/2023', '2/2023', '3/2023', '4/2023']} label={"Year"} icon={BiBarChartSquare} textDescription={["Line chart.", "Customize bar orientation, trends, goal line, axis scale, bar colors, stacking, etc."]} />
+
+                        <Charts title={"Number of orders by city"} keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }, { "yellow-400": "Ottawa" }]} pic={"barchart"} YCordinates={['1/2023', '2/2023', '3/2023', '4/2023']} label={"Year"} icon={BiBarChartSquare} textDescription={["Bar chart.", "Customize line style, axis scale, trend lines, showing values on graph, and more."]} />
+
+                        <Charts title={"Revenue by city"} height='[50%]' keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }]} pic={"piechart"} YCordinates={['1/2023', '2/2023', '3/2023', '4/2023']} icon={BiBarChartSquare} textDescription={["Pie Chart.", "Customize Other category, colors, showing percentages, legend style and more."]} />
+
+                        <Charts title={"Average order vs. volume"} keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }, { "yellow-400": "Ottawa" }]} pic={"dotted-pattern"} year={"Average order value"} YCordinates={['10', '20', '30', '40']} icon={BiBarChartSquare} textDescription={["Scatter chart.", "Customize bubble size, trends, axis scale, colors, legend behavior and more. "]} />
+
+                        <Charts title={"Average order by store"} keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }]} pic={"area-chart"} YCordinates={['10', '20', '30', '40']} year={"Average order value"} icon={BiBarChartSquare} textDescription={["Area chart.", "Customize line order, stacking, showing values on graph, goal lines, and more. "]} />
+
+                        <Charts title={"Customer spending"} keys={[]} pic={""} icon={BiBarChartSquare} textDescription={[" Single value.", "Customize trends, sub-header, style, date formats, prefix, suffix, and more."]} />
+                    </div>
+
+                   <div className='w-16 h-16 bg-area-chart bg-cover'></div>
                 </div>
 
             </div>

@@ -52,6 +52,11 @@ module.exports = {
         "yarn": "url('./src/assets/yarn-logo.png')",
         "mysql": "url('./src/assets/mysql-logo.png')",
         "mongodb": "url('./src/assets/mongodb-logo.png')",
+        "barchart": "url('./src/assets/barchart.webp')",
+        "piechart": "url('./src/assets/piechart.png')",
+        "linechart": "url('./src/assets/linechart.png')",
+        "area-chart": "url('./src/assets/areachart.png')",
+        "dotted-pattern": "url('./src/assets/dotted pattern.png')",
       },
       colors: {
         "white-60": "rgba(255, 255, 255, 0.6)",
