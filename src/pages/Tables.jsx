@@ -5,11 +5,11 @@ import {
   DestTables,
   SourceColumns,
   Odoo_Data,
-} from "../components/Context";
+} from "../../src/components/Context.js";
 import { useContext, useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toggleSelection, ClearTicked } from "../components/Functions";
-import { SpinnerBox } from "../components/SpinnerBox.jsx";
+import { toggleSelection, ClearTicked } from "../../src/components/Functions.js";
+import { SpinnerBox } from "../../src/components/SpinnerBox.jsx";
 
 export function Tables({ setshowCol }) {
   const [tickedboxes, settickedboxes] = useState(0);
