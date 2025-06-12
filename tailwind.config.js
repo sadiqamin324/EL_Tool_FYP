@@ -57,6 +57,9 @@ module.exports = {
         "linechart": "url('./src/assets/linechart.png')",
         "area-chart": "url('./src/assets/areachart.png')",
         "dotted-pattern": "url('./src/assets/dotted pattern.png')",
+        "new-texture": "url('./src/assets/new-texture.png')",
+        "gray-texture": "url('./src/assets/gray-texture.png')",
+
       },
       colors: {
         "white-60": "rgba(255, 255, 255, 0.6)",

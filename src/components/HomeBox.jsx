@@ -138,8 +138,8 @@ export default function Homebox({
           alert("failed to send flag to backend");
         }
       } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to send information to backend");
+        // console.error("Error:", error);
+        // alert("Failed to send information to backend");
       }
     }, timer); // 3 seconds delay
   }
@@ -172,8 +172,8 @@ export default function Homebox({
           alert("failed to recive pipeline records from backend");
         }
       } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to send information to backend");
+        // console.error("Error:", error);
+        // alert("Failed to send information to backend");
       }
     }
     fetchPipeline();
@@ -295,8 +295,8 @@ export default function Homebox({
             setsave_open(false);
           }
         } catch (error) {
-          console.error("Error:", error);
-          alert("Failed to send information to backend for object");
+          // console.error("Error:", error);
+          // alert("Failed to send information to backend for object");
           setsave_open(false);
         }
       }
@@ -338,8 +338,8 @@ export default function Homebox({
         alert("failed to add schedule to pipeline with name", pipeline_name);
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to send information to backend");
+      // console.error("Error:", error);
+      // alert("Failed to send information to backend");
     }
   }
 
@@ -376,8 +376,8 @@ export default function Homebox({
       }
 
     } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to send information to backend");
+      // console.error("Error:", error);
+      // alert("Failed to send information to backend");
     }
     setIndex(prevSet => {
       const newSet = new Set(prevSet);
@@ -505,7 +505,7 @@ export default function Homebox({
         </div>
       </div>
       <div className="flex justify-between items-center">
-        <p className="font-Inter text-2xl">{title}</p>
+     
         <div className="w-[10%] flex justify-between">
           <div
             className="bg-edit bg-cover h-8 w-8 cursor-pointer"
@@ -520,22 +520,28 @@ export default function Homebox({
         </div>
       </div>
       {title != "Pipeline" ? (
-        <div className="grid grid-cols-6 border-y p-1 gap-x-2 border-x-2 border-black">
-          <p className="text-center">ID</p>
-          <p className="lowercase text-center">{title + "_name"}</p>
-          <p className="lowercase text-center">{title + "_type"}</p>
-          <p className="text-center">host</p>
-          <p className="text-center">database_name</p>
-          <p className="text-center">active_status</p>
+
+        <div>
+          <div className="w-full rounded-md items-center bg-slate-100 h-[8vh] grid grid-cols-6">
+            <p className="text-sm text-neutral-500">ID</p>
+            <p className="text-sm text-neutral-500">{title + " name"}</p>
+            <p className="text-sm text-neutral-500">{title + " type"}</p>
+            <p className="text-sm text-neutral-500">Host</p>
+            <p className="text-sm text-neutral-500">Database name</p>
+            <p className="text-sm text-neutral-500">Active status</p>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-6 border-y p-1 gap-2 border-x-2 border-black">
-          <p className="text-center">ID</p>
-          <p className="w-max lowercase  text-center">{title + "_name"}</p>
-          <p className="w-max text-center">source_table</p>
-          <p className="w-max text-center">destination_database</p>
-          <p className="w-max text-center">destination_table</p>
-          <p className="w-max text-center">active_status</p>
+
+        <div>
+          <div className="w-full rounded-md items-center bg-slate-100 h-[8vh] grid grid-cols-6">
+            <p className="text-sm text-neutral-500">ID</p>
+            <p className="text-sm text-neutral-500">{title + " name"}</p>
+            <p className="text-sm text-neutral-500">Source table</p>
+            <p className="text-sm text-neutral-500">Destination database</p>
+            <p className="text-sm text-neutral-500">Destination table</p>
+            <p className="text-sm text-neutral-500">Active status</p>
+          </div>
         </div>
       )}
 

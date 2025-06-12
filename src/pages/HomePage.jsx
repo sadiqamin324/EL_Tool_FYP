@@ -5,6 +5,8 @@ import { TechLogo } from '../components/TechLogos.jsx';
 import React from 'react';
 import { BiBarChartSquare } from 'react-icons/bi';
 import Charts from '../components/Charts.jsx';
+import Navbar from '../components/Navbar.jsx';
+import Footer from '../components/Footer.jsx';
 
 export function HomePage() {
     const arrowRef = useRef(null);
@@ -31,34 +33,10 @@ export function HomePage() {
 
     return (
         <div
-            className="px-28">
-            <div className='w-full flex justify-center items-center sticky top-0 h-24 z-10'>
-                <div ref={NavRef} className={`navbar h-1/2 rounded-xl items-center bg-white flex w-full border-white/70 transition-all ease-in-out duration-[1000ms] ${scrollFlag ? "backdrop-blur-sm bg-white/95 border shadow-lg" : ""}`}>
-                    <div className="w-[35%] flex items-center">
-                        <div className="w-14 h-14 bg-nova-icon bg-cover"></div>
-
-                        <p className={` ${scrollFlag ? "hidden" : ""} text-xl font-semibold`}>Nova</p>
-                        <div className={` ${scrollFlag ? "" : "hidden"} w-[1px] h-5 bg-gray-300 ml-2`}></div>
-                    </div>
-                    <div className="w-[30rem]">
-                        <ul className="flex justify-between items-evenly">
-                            <li className="text-slate-800 cursor-pointer font-normal text-gray-700 hover:bg-gray-200 rounded-md py-1 px-2 text-sm">Source</li>
-                            <li className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Destination</li>
-                            <li className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Pipeline</li>
-                            <li className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Schedule</li>
-                            <li className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Demo</li>
-                        </ul>
-                    </div>
-                    <div className={`w-[32%] flex justify-end items-center ${scrollFlag ? "pr-2" : ""}`}>
-                        <ul>
-                            <li className="text-neutral-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Log in</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div className="h-[70vh] w-full">
-                <div className="h-full py-16 rounded-[6vh] bg-black-texture bg-cover w-full flex flex-col ">
+            className="">
+            <Navbar />
+            <div className="px-28 h-[70vh] w-full">
+                <div id='section' className="h-full py-16 rounded-[6vh] bg-black bg-black-texture bg-cover w-full flex flex-col ">
                     <div className="w-full flex justify-center mb-2">
                         <div onMouseLeave={() => {
                             arrowRef.current.classList.replace('bg-arrow-right', 'bg-right');
@@ -73,7 +51,7 @@ export function HomePage() {
                             <div ref={arrowRef} className="w-4 h-4 bg-right bg-cover transform transition-transform duration-500 ease-in-out"></div>
                         </div>
                     </div>
-                    <div className="w-full flex justify-center mb-5 items-center">
+                    <div className="w-full  flex justify-center mb-5 items-center">
                         <div className="w-[50%]">
                             <p className="text-5xl text-white text-center">Semantic Data Layer <a className="text-blue-300">Architecture</a></p>
                         </div>
@@ -88,25 +66,27 @@ export function HomePage() {
                 </div>
 
             </div>
-            <div className="w-full mt-16 rounded-2xl h-[110vh] py-4 bg-gray-200 flex justify-center items-center">
-                <Tag label='Hammad' translateX={['-30vw', '20vw', '30vw', '-30vw']} translateY={['10vh', '20vh', '-30vh', '10vh']} />
+            <div className='w-full px-28'>
+                <div className="w-full mt-16 rounded-2xl h-[110vh] py-4 bg-gray-200 flex justify-center items-center">
+                    <Tag label='Hammad' translateX={['-30vw', '20vw', '30vw', '-30vw']} translateY={['10vh', '20vh', '-30vh', '10vh']} />
 
-                <Tag label='Salman' translateX={['-20vw', '30vw', '40vw', '-20vw']} translateY={['-20vh', '10vh', '-5vh', '-20vh']} />
+                    <Tag label='Salman' translateX={['-20vw', '30vw', '40vw', '-20vw']} translateY={['-20vh', '10vh', '-5vh', '-20vh']} />
 
-                <Tag label='Sadiq' translateX={['0vw', '30vw', '20vw', '0vw']} translateY={['50vh', '40vh', '-20vh', '50vh']} />
+                    <Tag label='Sadiq' translateX={['0vw', '30vw', '20vw', '0vw']} translateY={['50vh', '40vh', '-20vh', '50vh']} />
 
-                <div className="bg-white bg-graphs-piechart rounded-2xl border border-gray-300 bg-cover w-[98%] h-full">
+                    <div className="bg-white bg-graphs-piechart rounded-2xl border border-gray-300 bg-cover w-[98%] h-full">
 
-                    <Tag label='Safee' translateX={['0vw', '45vw', '30vw', '0vw']} translateY={['0vh', '45vh', '70vh', '0vh']} />
+                        <Tag label='Safee' translateX={['0vw', '45vw', '30vw', '0vw']} translateY={['0vh', '45vh', '70vh', '0vh']} />
+                    </div>
                 </div>
             </div>
-            <div className='w-full mt-16'>
+            <div className='px-28 w-full mt-16'>
                 <div>
                     <p className='text-sm text-gray-800 text-center font-normal'>Powering data insights for today's startups and tomorrow's leaders.
                     </p>
                 </div>
             </div>
-            <div className='tech-stack mt-8 grid grid-cols-1 gap-y-8 justify-items-center'>
+            <div className='px-28 tech-stack mt-8 grid grid-cols-1 gap-y-8 justify-items-center'>
                 <div className='w-full flex justify-between items-center'>
                     <div className='w-14 h-16 bg-postgres bg-cover'></div>
                     <div className='w-[5.4rem] h-[4.2vh] bg-odoo bg-cover'></div>
@@ -120,8 +100,8 @@ export function HomePage() {
                     <div className='w-24 h-24 bg-node bg-cover'></div>
                 </div>
             </div>
-            <div className='w-full h-[95vh] mt-16'>
-                <div className='w-full h-full relative rounded-[6vh] bg-black bg-space flex flex-col items-center pt-28'>
+            <div className='px-28 w-full h-[95vh] mt-16'>
+                <div className='w-full h-full relative rounded-[6vh] bg-black bg-new-texture flex flex-col items-center pt-28'>
                     <div className="rounded-full w-max px-2 h-max py-1 bg-white flex justify-center items-center">
                         <div className="w-4 h-4 bg-db-logo bg-cover mr-1"></div>
                         <div className='text-xs font-medium'>Data harmony</div>
@@ -136,7 +116,7 @@ export function HomePage() {
                         <Button label={"Get started today"} />
                     </div>
                     <div className='mt-28'>
-                        <div className='bg-nova-icon-wob block my-0 p-0 border border-white bg-cover w-24 h-24 rounded-lg shadow-lg shadow-sky-600/60'></div>
+                        <div className='bg-nova-icon-wob block my-0 p-0 bg-cover w-24 h-24 rounded-lg shadow-lg shadow-sky-600/60'></div>
                     </div>
 
                     {/* Tech Container */}
@@ -157,7 +137,7 @@ export function HomePage() {
             </div>
 
 
-            <div className='w-full h-[120vh] mt-16'>
+            <div className='px-28 w-full h-[120vh] mt-16'>
                 <div className='w-full h-full relative rounded-[6vh] bg-black bg-space flex flex-col items-center pt-28'>
                     <div className="rounded-full w-max px-2 h-max py-1 bg-white flex justify-center items-center">
                         <div className="w-4 h-4 bg-db-logo bg-cover mr-1"></div>
@@ -177,7 +157,7 @@ export function HomePage() {
             </div>
 
 
-            <div className='w-full h-max mt-16'>
+            <div className='px-28 w-full h-max mt-16'>
                 <div className='w-full h-full relative rounded-[6vh] flex flex-col items-center pt-28'>
                     <div className="rounded-full w-max px-3 h-max py-2 bg-slate-100 border border-gray-200 flex justify-center items-center">
                         <div className="w-4 h-4 bg-db-logo bg-cover mr-1"></div>
@@ -192,26 +172,27 @@ export function HomePage() {
                     <div className='flex justify-center mt-4'>
                         <p className='w-2/3 text-black text-center'>Visualize your data in a variety of ways thanks to a robust set of visualizations. Whether it’s as a table, a chart, or a single value — you’re in control.</p>
                     </div>
-                    <div className='w-full grid grid-cols-3 mt-16 justify-center gap-2 items-center'>
-                        <Charts title={"User Signups"} keys={[{ "orange-400": "Supercart +users" }, { "sky-400": "Non-premium users" }]} pic={"linechart"} YCordinates={['1/2023', '2/2023', '3/2023', '4/2023']} label={"Year"} icon={BiBarChartSquare} textDescription={["Line chart.", "Customize bar orientation, trends, goal line, axis scale, bar colors, stacking, etc."]} />
+                    <div className='w-full grid grid-cols-3 mt-16 justify-center gap-4 items-center'>
+                        <Charts title={"User Signups"} keys={[{ "orange-400": "Supercart +users" }, { "sky-400": "Non-premium users" }]} pic={"yarn"} YCordinates={['1/2023', '2/2023', '3/2023', '4/2023']} label={"Year"} icon={BiBarChartSquare} textDescription={["Line chart.", "Customize bar orientation, trends, goal line, axis scale, bar colors, stacking, etc."]} />
 
                         <Charts title={"Number of orders by city"} keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }, { "yellow-400": "Ottawa" }]} pic={"barchart"} YCordinates={['1/2023', '2/2023', '3/2023', '4/2023']} label={"Year"} icon={BiBarChartSquare} textDescription={["Bar chart.", "Customize line style, axis scale, trend lines, showing values on graph, and more."]} />
 
-                        <Charts title={"Revenue by city"} height='[50%]' keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }]} pic={"piechart"} YCordinates={['1/2023', '2/2023', '3/2023', '4/2023']} icon={BiBarChartSquare} textDescription={["Pie Chart.", "Customize Other category, colors, showing percentages, legend style and more."]} />
+                        <Charts title={"Revenue by city"} height='[60%]' keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }]} pic={"piechart"} YCordinates={['1/2023', '2/2023', '3/2023', '4/2023']} icon={BiBarChartSquare} textDescription={["Pie Chart.", "Customize Other category, colors, showing percentages, legend style and more."]} />
 
-                        <Charts title={"Average order vs. volume"} keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }, { "yellow-400": "Ottawa" }]} pic={"dotted-pattern"} year={"Average order value"} YCordinates={['10', '20', '30', '40']} icon={BiBarChartSquare} textDescription={["Scatter chart.", "Customize bubble size, trends, axis scale, colors, legend behavior and more. "]} />
+                        <Charts title={"Average order vs. volume"} keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }, { "yellow-400": "Ottawa" }]} pic={"dotted-pattern"} label={"Average order value"} YCordinates={['10', '20', '30', '40']} icon={BiBarChartSquare} textDescription={["Scatter chart.", "Customize bubble size, trends, axis scale, colors, legend behavior and more. "]} />
 
-                        <Charts title={"Average order by store"} keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }]} pic={"area-chart"} YCordinates={['10', '20', '30', '40']} year={"Average order value"} icon={BiBarChartSquare} textDescription={["Area chart.", "Customize line order, stacking, showing values on graph, goal lines, and more. "]} />
+                        <Charts title={"Average order by store"} keys={[{ "orange-600": "Toronto" }, { "blue-300": "Vancouver" }, { "purple-500": "Montreal" }]} pic={"area-chart"} YCordinates={['10', '20', '30', '40']} label={"Average order value"} icon={BiBarChartSquare} textDescription={["Area chart.", "Customize line order, stacking, showing values on graph, goal lines, and more. "]} />
 
                         <Charts title={"Customer spending"} keys={[]} pic={""} icon={BiBarChartSquare} textDescription={[" Single value.", "Customize trends, sub-header, style, date formats, prefix, suffix, and more."]} />
                     </div>
 
-                   <div className='w-16 h-16 bg-area-chart bg-cover'></div>
+
                 </div>
 
             </div>
+            <Footer />
 
-        </div>
+        </div >
     )
 }
 
