@@ -1,3 +1,4 @@
+import AccountSettings from "./pages/AccountSettings"; // or "./forms/AccountSettings" if stored in forms
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import Home from "./pages/Home";
@@ -61,6 +62,8 @@ export default function App() {
                       <Route path="/pipeline" element={<Pipeline />} />
                       <Route path="/all-rows" element={<Rows />} />
                       <Route path="/loader" element={<LoaderPage />} />
+                      <Route path="/account-settings" element={<AccountSettings />} />
+
                     </Routes>
                   </BrowserRouter>
                 </Odoo_Data.Provider>
