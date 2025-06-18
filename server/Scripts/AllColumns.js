@@ -51,6 +51,7 @@ export default async function getAllColumns(
     dialect: "postgres",
   });
 
+  console.log('Her is the password', password)
   try {
     // Query to fetch columns + data types + primary key info
     // const [columns] = await sequelize.query(`

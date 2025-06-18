@@ -35,9 +35,9 @@ export default function App() {
   const [odoo_records, setodoo_records] = useState(null);
 
   return (
-    <SourceTables.Provider value={{ source_tables, setsource_tables }}>
-      <DestTables.Provider value={{ dest_columns, setdest_columns }}>
-        <Password.Provider value={{ Global_Password, setGlobal_Password }}>
+    <Password.Provider value={{ Global_Password, setGlobal_Password }}>
+      <SourceTables.Provider value={{ source_tables, setsource_tables }}>
+        <DestTables.Provider value={{ dest_columns, setdest_columns }}>
           <SourceColumns.Provider value={{ source_columns, setsource_columns }}>
             <Title.Provider value={{ isSource, setisSource }}>
               <Source_Rows.Provider value={{ source_rows, setsource_rows }}>
@@ -53,8 +53,8 @@ export default function App() {
                 >
                   <BrowserRouter>
                     <Routes>
-                      <Route path="/password" element={<PasswordBox />} />
-                      <Route path="/" element={<HomePage />} />
+                      <Route path="/" element={<PasswordBox />} />
+                      <Route path="/landingpage" element={<HomePage />} />
                       <Route path="/home" element={<Home />} />
                       <Route path="/SignUp" element={<SignUp />} />
                       <Route path="/SignIn" element={<SignIn />} />
@@ -70,8 +70,8 @@ export default function App() {
               </Source_Rows.Provider>
             </Title.Provider>
           </SourceColumns.Provider>
-        </Password.Provider>
-      </DestTables.Provider>
-    </SourceTables.Provider>
+        </DestTables.Provider>
+      </SourceTables.Provider>
+    </Password.Provider>
   );
 }

@@ -25,6 +25,7 @@ export function Tables({ setshowCol }) {
   const [dataArrived, setdataArrived] = useState(false);
 
   useEffect(() => {
+    console.log("Here we go again", Global_Password)
     if (
       // Check if both source_rows and odoo_records are valid and have data
       (source_tables &&
@@ -37,15 +38,15 @@ export function Tables({ setshowCol }) {
     }
   }, [source_tables, odoo_data]); // Effect depends on both source_rows and odoo_records
 
+  const saved_password = sessionStorage.getItem('db_password') || Global_Password;
   async function fetchColumns() {
-    console.log();
     try {
       const response = await fetch("http://localhost:5000/get-all-columns", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ selectedTables, Global_Password }),
+        body: JSON.stringify({ selectedTables, Global_Password: saved_password }),
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -65,7 +66,7 @@ export function Tables({ setshowCol }) {
       alert("Failed to send information to backend");
     }
   }
-  
+
   function ClickSelect() {
     let Postgres_columns = [];
     let Odoo_columns = [];
@@ -224,8 +225,8 @@ export function Tables({ setshowCol }) {
             ClearTicked(setSelectedIndexes, settickedboxes);
           }}
           className={`h-1/2 my-4 mx-2 w-1/3 rounded-md text-white ${tickedboxes > 0
-              ? "bg-red-400 cursor-pointer"
-              : "bg-red-200 cursor-auto"
+            ? "bg-red-400 cursor-pointer"
+            : "bg-red-200 cursor-auto"
             }`}
         >
           Clear
@@ -234,8 +235,8 @@ export function Tables({ setshowCol }) {
           onClick={ClickSelect}
           ref={SelectbuttonRef}
           className={`h-1/2 my-4 mx-2 w-1/3 rounded-md text-white ${tickedboxes > 0
-              ? "bg-blue-500 cursor-pointer"
-              : "bg-blue-300 cursor-auto"
+            ? "bg-blue-500 cursor-pointer"
+            : "bg-blue-300 cursor-auto"
             }`}
         >
           Select

@@ -61,7 +61,7 @@ export function HomePage() {
                             <p className="text-md text-white text-center">Extract your data, build your dashboard, bring your business together.</p>
                         </div>
                     </div>
-                    <Button label={"Start now"} />
+                    <Button href={"./home"} label={"Start now"} />
 
                 </div>
 
@@ -113,7 +113,7 @@ export function HomePage() {
                         <p className='w-2/3 text-white text-center'>Nova connects a large number of databases and data warehouses seamlessly.</p>
                     </div>
                     <div className='mt-6'>
-                        <Button label={"Get started today"} />
+                        <Button href={"./home"} label={"Get started today"} />
                     </div>
                     <div className='mt-28'>
                         <div className='bg-nova-icon-wob block my-0 p-0 bg-cover w-24 h-24 rounded-lg shadow-lg shadow-sky-600/60'></div>
@@ -150,7 +150,7 @@ export function HomePage() {
                         <p className='w-2/3 text-white text-center'>Nova provides a process to filter your sources and select the desired table and columns.</p>
                     </div>
                     <div className='mt-6'>
-                        <Button label={"Configure a source"} />
+                        <Button href={"./home"} label={"Configure a source"} />
                     </div>
                 </div>
 

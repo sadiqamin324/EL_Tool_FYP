@@ -33,11 +33,11 @@ export default function Navbar() {
                 </div>
                 <div className="w-[30rem]">
                     <ul className="flex justify-between items-evenly">
-                        <li className="text-slate-800 cursor-pointer font-normal text-gray-700 hover:bg-gray-200 rounded-md py-1 px-2 text-sm">Source</li>
-                        <li className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Destination</li>
-                        <li className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Pipeline</li>
-                        <li className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Schedule</li>
-                        <li className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Demo</li>
+                        <a href='./home' className="text-slate-800 cursor-pointer font-normal text-gray-700 hover:bg-gray-200 rounded-md py-1 px-2 text-sm">Source</a>
+                        <a href='./home' className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Destination</a>
+                        <a href='./home' className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Pipeline</a>
+                        <a href='./home' className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Schedule</a>
+                        <a href='./home' className="text-slate-800 cursor-pointer font-normal text-gray-700 text-sm hover:bg-gray-200 rounded-md py-1 px-2">Demo</a>
                     </ul>
                 </div>
                 <div className={`w-[32%] flex justify-end items-center ${scrollFlag ? "pr-2" : ""}`}>

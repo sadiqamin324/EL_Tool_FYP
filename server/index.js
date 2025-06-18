@@ -1,7 +1,7 @@
 import express, { raw } from "express";
 import cors from "cors";
 import { DataTypes, where } from "sequelize";
-import { Sequelize } from "sequelize";
+import { Sequelize, } from "sequelize";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import {
@@ -22,11 +22,26 @@ import { compareRecords } from "../src/components/Functions.js";
 import { Json } from "sequelize/lib/utils";
 import { error } from "console";
 import { getPrimaryKeyColumns } from "./Scripts/fetchOdooPrimaryKeys.js";
+// ✅ 1. Load environment variables and required modules
+//require("dotenv").config(); // Always at the very top
+//const express = require("express");
+//const cors = require("cors");
+//const crypto = require("crypto");
+//const { Sequelize, DataTypes } = require("sequelize");
+import dotenv from "dotenv";
+dotenv.config(); // ✅ load .env variables
+
+
+
 
 const app = express();
-app.use(express.json()); // Middleware to parse JSON data
+app.use(express.json()); // Middleware to parse JSON
 app.use(cors());
-const PORT = 5000; // Keep the hardcoded port
+const PORT = 5000;
+
+
+
+
 //Odoo Url
 const url = "http://127.0.0.1";
 
@@ -959,6 +974,7 @@ app.post("/get-all-columns", async (req, res) => {
   const { Global_Password } = req.body;
   const All_Columns = [];
 
+  console.log(Global_Password)
   let user;
   try {
     // Send the response with data
@@ -1021,89 +1037,82 @@ app.post("/get-all-rows", async (req, res) => {
 });
 
 app.post("/dump-data", async (req, res) => {
-  const { password } = req.body;
-  const { database_name } = req.body;
-  const { dumpdata } = req.body;
+  try {
+    const { password, database_name, dumpdata } = req.body;
 
-  console.log("Database name", database_name);
-  const sequelize = new Sequelize(database_name, "postgres", password, {
-    host: "localhost", // Your DB host
-    dialect: "postgres", // Specify PostgreSQL
-    logging: false, // Disable logging queries (set true for debugging)
-  });
+    // Decrypt password
+    const decryptedPassword = decryptPassword(JSON.parse(password));
 
-  function getDataType(column, value) {
-    column = column.toLowerCase(); // Convert to lowercase for case-insensitive comparison
+    console.log("Database name:", database_name);
+    const sequelize = new Sequelize(database_name, "postgres", decryptedPassword, {
+      host: "localhost",
+      dialect: "postgres",
+      logging: false,
+    });
 
-    // Check if the column is an array
-    if (Array.isArray(value)) {
-      // Handle empty arrays specifically
-      if (value.length === 0) {
-        return DataTypes.JSONB; // For PostgreSQL, you can use JSONB or JSON data type for arrays
+    function getDataType(column, value) {
+      column = column.toLowerCase();
+
+      if (Array.isArray(value)) {
+        return DataTypes.JSONB;
       }
-      return DataTypes.JSONB; // Use JSONB or ARRAY depending on the database
+
+      if (column.includes("id")) return DataTypes.INTEGER;
+      if (column.includes("date") || column.includes("time") || column.includes("timestamp")) {
+        return DataTypes.DATE;
+      }
+      if (column.includes("active") || column.includes("enabled")) return DataTypes.BOOLEAN;
+
+      return DataTypes.STRING;
     }
 
-    // Check if the column name includes "id" (e.g., user_id, account_id)
-    if (column.includes("id")) return DataTypes.INTEGER;
+    async function createAndInsertTable(dumpdata) {
+      const { tableName, columnArray, rows } = dumpdata;
 
-    // Check for date or time-related columns (e.g., created_at, updated_at, event_date)
-    if (
-      column.includes("date") ||
-      column.includes("time") ||
-      column.includes("timestamp")
-    )
-      return DataTypes.DATE;
-
-    // Check for boolean columns (e.g., is_active, is_enabled, active)
-    if (column.includes("active") || column.includes("enabled"))
-      return DataTypes.BOOLEAN;
-
-    // Default case: return string for everything else
-    return DataTypes.STRING;
-  }
-  async function createAndInsertTable(dumpdata) {
-    const { tableName, columnArray, rows } = dumpdata;
-
-    // Define fields dynamically
-    const fields = {};
-    rows.forEach((row) => {
-      columnArray.forEach((col) => {
-        fields[col] = {
-          type: getDataType(col, row[col]),
-          allowNull: true,
-        };
-      });
-    });
-
-    // Define the model dynamically
-    const DynamicModel = sequelize.define(tableName, fields, {
-      timestamps: false, // Set to true if `createdAt` and `updatedAt` are needed
-      tableName: tableName,
-    });
-
-    // Sync the table (Creates table if not exists)
-    await DynamicModel.sync({ force: true });
-
-    // Insert rows into the table
-    for (const row of rows) {
-      const rowData = {};
-      columnArray.forEach((col, index) => {
-        rowData[col] = row[col];
+      const fields = {};
+      rows.forEach((row) => {
+        columnArray.forEach((col) => {
+          fields[col] = {
+            type: getDataType(col, row[col]),
+            allowNull: true,
+          };
+        });
       });
 
-      await DynamicModel.create(rowData);
+      const DynamicModel = sequelize.define(tableName, fields, {
+        timestamps: false,
+        tableName: tableName,
+      });
+
+      await DynamicModel.sync({ force: true });
+
+      for (const row of rows) {
+        const rowData = {};
+        columnArray.forEach((col) => {
+          rowData[col] = row[col];
+        });
+        await DynamicModel.create(rowData);
+      }
+
+      console.log(`✅ Data inserted into '${tableName}' successfully!`);
     }
 
-    console.log(`✅ Data inserted into '${tableName}' successfully!`);
+    async function createAndInsertTables(dumpdataArray) {
+      for (const dumpdata of dumpdataArray) {
+        await createAndInsertTable(dumpdata);
+      }
+      console.log("✅ All tables inserted successfully!");
+    }
+
+    // Call the function inside try block
+    await createAndInsertTables(dumpdata);
+
+    res.status(200).send("Connection and data insertion successful.");
+  } catch (err) {
+    console.error("❌ Error in /dump-data:", err);
+    res.status(500).json({ error: err.message });
   }
 
-  async function createAndInsertTables(dumpdataArray) {
-    for (const dumpdata of dumpdataArray) {
-      await createAndInsertTable(dumpdata);
-    }
-    console.log("✅ All tables inserted successfully!");
-  }
 
   createAndInsertTables(dumpdata).catch(console.log(error));
   // Test the database connection
@@ -1276,7 +1285,7 @@ app.post("/run-pipeline", async (req, res) => {
           AND tc.table_name = '${pipeline_record.source_table_name}'
           AND tc.table_schema = 'public'
       `);
-      
+
       primaryKeyColumns = primaryKeys.map(pk => pk.primary_key_column);
       console.log("All primary keys", primaryKeyColumns);
 
@@ -1831,7 +1840,7 @@ app.post("/add-schedule", async (req, res) => {
   }
 });
 // Start the server
-app.listen(5000,'0.0.0.0',() => {
+app.listen(5000, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:5000`);
 });
 

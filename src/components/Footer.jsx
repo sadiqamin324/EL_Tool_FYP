@@ -19,7 +19,7 @@ export default function Footer() {
                         <p className='text-white text-lg text-neutral-500'>The desired platform for business analytics.</p>
                     </div>
                     <div className='mt-4'>
-                        <Button label={"Get started - for free"} />
+                        <Button href={'./home'} label={"Get started - for free"} />
                     </div>
                 </div>
             </div>

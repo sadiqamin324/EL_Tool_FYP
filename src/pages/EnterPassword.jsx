@@ -8,7 +8,7 @@ export default function PasswordBox() {
   const InputBox = useRef(null);
   const ButtonRef = useRef(null);
   const DialogueDiv = useRef(null);
-  const { setGlobal_Password } = useContext(Password);
+  const { Global_Password, setGlobal_Password } = useContext(Password);
   const navigate = useNavigate(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -30,8 +30,10 @@ export default function PasswordBox() {
         const data = await response.json();
         if (data.success) {
           alert("Connected to System DB successfully");
+          sessionStorage.setItem('db_password', InputBox.current.value);
           setGlobal_Password(InputBox.current.value);
-          navigate("/home")
+
+          navigate("/landingpage")
         } else {
           alert("Wrong password, retry!");
         }
@@ -63,6 +65,7 @@ export default function PasswordBox() {
       }
     };
   }, []);
+
 
   return (
     <div
